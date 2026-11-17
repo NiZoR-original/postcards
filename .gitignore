@@ -1,0 +1,7 @@
+db_config.php
+/uploads/full/*
+/uploads/thumbs/*
+!/uploads/*/.gitkeep
+.DS_Store
+*.log
+.claude/settings.local.json
