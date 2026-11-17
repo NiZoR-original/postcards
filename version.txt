@@ -1,0 +1,9 @@
+0.1.0.0 du 17/11/2026
+* NEW : Carte du monde publique (FR/EN) - pays colorés selon le nombre de cartes reçues, envoyées ou les deux, petits pays absents du fond de carte en marqueurs, clic sur un pays = vignettes de ses cartes, liste de tous les pays sous la carte
+* NEW : Fiche publique d'une carte - photos agrandissables, dates, durée du voyage, distance, lien vers Postcrossing (déduit de la référence) ou Cardzilla
+* NEW : Page publique des swaps - catalogue des cartes à échanger pour le Discord Postcrossing, filtre par thème, numéro à citer, réservées grisées, échangées masquées
+* NEW : Admin protégée par mot de passe - liste des cartes avec recherche et filtres (sens, plateforme, pays, en route), saisie des cartes et des swaps, notes privées, « Enregistrer et nouvelle »
+* NEW : Photos - galerie libre par carte ou swap, chacune publique ou privée avec légende et ordre ; redimensionnées, redressées, métadonnées (GPS) supprimées, servies par photo.php qui vérifie les droits
+* NEW : Installeur web (install.php) - vérifications, connexion MySQL et écriture de db_config.php, création des tables, premier compte admin ; verrouillé une fois installé
+* NEW : Migrations du schéma - fichiers numérotés dans sql/migrations, appliqués depuis Admin > Migrations (ou scripts/migrer.php en local)
+* NEW : Déploiement automatique sur OVH en FTP à chaque push sur main (GitHub Actions)

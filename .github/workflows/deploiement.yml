@@ -1,0 +1,52 @@
+# Déploiement FTP vers l'hébergement mutualisé OVH à chaque push sur main.
+# N'envoie que les fichiers modifiés depuis le dernier déploiement (état gardé sur le serveur
+# dans .ftp-deploy-sync-state.json). Ne touche jamais à db_config.php ni aux photos de uploads/.
+#
+# À configurer dans GitHub → Settings → Secrets and variables → Actions :
+#   Secrets   : FTP_SERVER (ex. ftp.clusterXXX.hosting.ovh.net), FTP_USERNAME, FTP_PASSWORD
+#   Variables : FTP_DIR (dossier distant, avec / final, ex. /www/postcards/)
+#               FTP_PROTOCOL (facultatif : ftps par défaut, ftp si le serveur refuse le TLS)
+#
+# Après un déploiement qui ajoute une migration : Admin → Migrations → Appliquer.
+
+name: Déploiement OVH
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploiement-ovh
+  cancel-in-progress: false
+
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Vérification syntaxique PHP
+        run: |
+          find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l > /dev/null
+
+      - name: Envoi FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          server-dir: ${{ vars.FTP_DIR }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .github/**
+            .claude/**
+            version.txt
+            scripts/**
+            CLAUDE.md
+            README.md
+            db_config.php
+            uploads/full/*.jpg
+            uploads/thumbs/*.jpg

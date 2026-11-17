@@ -1,0 +1,2 @@
+# Les photos peuvent être privées : tout passe par photo.php qui vérifie les droits.
+Require all denied
