@@ -14,8 +14,10 @@
   --rayon: 10px;
   color-scheme: light;
 }
+/* Thème : data-theme="light" | "dark" posé sur <html> par le serveur (cookie pc_theme, voir theme_courant()) ;
+   sans attribut, le thème suit le système. Les deux blocs sombres doivent rester identiques. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --fond: #1d1b19;
     --surface: #282522;
     --texte: #ece6dd;
@@ -29,6 +31,20 @@
     --ombre: 0 1px 3px rgba(0, 0, 0, .4);
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+  --fond: #1d1b19;
+  --surface: #282522;
+  --texte: #ece6dd;
+  --discret: #a69d92;
+  --bord: #3b3733;
+  --primaire: #5aa3c7;
+  --primaire-texte: #10202a;
+  --accent: #e08a52;
+  --ok: #5cbf86;
+  --danger: #e07070;
+  --ombre: 0 1px 3px rgba(0, 0, 0, .4);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -45,7 +61,9 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
 [hidden] { display: none !important; }
 
 /* ---------- Barre du haut ---------- */
+/* Barre de menu fixée en haut de l'écran au défilement */
 .topbar {
+  position: sticky; top: 0; z-index: 100;
   display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.5rem;
   padding: .7rem 1rem;
   background: var(--surface);
@@ -59,7 +77,12 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
   padding: .35rem .7rem; border-radius: 6px; text-decoration: none; color: var(--discret);
 }
 .topbar nav a.actif, .langues a.actif { background: var(--fond); color: var(--texte); font-weight: 600; }
-.langues { display: flex; gap: .15rem; }
+.langues, .themes { display: flex; gap: .15rem; }
+.themes button {
+  font: inherit; padding: .35rem .55rem; border: 0; border-radius: 6px; cursor: pointer;
+  background: none; color: var(--discret);
+}
+.themes button.actif { background: var(--fond); color: var(--texte); }
 
 .contenu { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
 
@@ -102,15 +125,30 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
   background: var(--primaire); color: var(--primaire-texte); border-color: var(--primaire);
 }
 
-/* Panneau du pays masqué tant qu'aucun pays n'est choisi : la carte prend toute la largeur */
+/* Panneau du pays : sous la carte, en pleine largeur, masqué tant qu'aucun pays n'est choisi */
 .carte-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
-.carte-layout.avec-panneau { grid-template-columns: minmax(0, 1fr) 360px; }
 .pied-carte { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .3rem 1rem; }
+.note-carte { margin: .6rem 0 0; font-size: .9rem; }
 .aide-clic { margin: 0; padding: .2rem .5rem; font-size: .8rem; color: var(--discret); }
 .panneau-titre { display: flex; justify-content: space-between; align-items: start; gap: .5rem; }
 .panneau-titre button { background: none; border: 0; font-size: 1.4rem; line-height: 1; color: var(--discret); cursor: pointer; padding: 0 .2rem; }
 .carte-monde { background: var(--surface); border-radius: var(--rayon); box-shadow: var(--ombre); padding: .5rem; position: relative; }
 #map { width: 100%; aspect-ratio: 2 / 1.1; min-height: 260px; max-height: 68vh; }
+/* Frontières : liseré blanc + trait foncé central, en couche au-dessus des zones (.pc-frontieres, voir map.js),
+   épaisseurs fixes en pixels quel que soit le zoom ; couleurs fixes, identiques en thème clair et sombre */
+#map .jvm-region { vector-effect: non-scaling-stroke; shape-rendering: geometricPrecision; }
+#map .pc-frontieres { pointer-events: none; }
+#map .pc-frontieres path { fill: none; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+#map .pc-liseres path { stroke: #fff; stroke-width: 3px; }
+#map .pc-traits path { stroke: #2b2723; stroke-width: 1px; }
+/* Fond monde : les pays voisins ne partagent pas exactement leurs contours, chaque frontière est donc
+   tracée deux fois côte à côte. Liseré et trait de 1 px sans anticrénelage : un trait plus fin qu'un
+   pixel, ou deux traits lissés côte à côte, donnent une impression de flou */
+#map[data-fond="world"] .pc-frontieres path { shape-rendering: crispEdges; }
+#map[data-fond="world"] .pc-liseres path { stroke-width: 1px; }
+#map[data-fond="world"] .pc-traits path { stroke-width: 1px; }
+/* Cadres des encarts (Hawaï, territoires) : zones « _… » du fond USA & Canada, décoratives */
+#map .jvm-region[data-code^="_"] { fill: none !important; stroke: var(--discret) !important; stroke-width: 1px; stroke-opacity: .55; stroke-dasharray: 4 3; pointer-events: none; }
 .jvm-tooltip { font-family: inherit; font-size: .85rem; background: var(--texte); color: var(--fond); }
 .jvm-zoom-btn { background: var(--primaire); }
 .legende { display: flex; gap: .8rem; flex-wrap: wrap; font-size: .8rem; color: var(--discret); padding: .2rem .5rem; }
@@ -118,10 +156,10 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
 
 .panneau {
   background: var(--surface); border-radius: var(--rayon); box-shadow: var(--ombre);
-  padding: 1rem; max-height: 75vh; overflow: auto; transition: opacity .2s;
+  padding: 1rem; transition: opacity .2s; scroll-margin-top: 1rem;
 }
 .panneau.charge { opacity: .5; }
-.vignettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .6rem; }
+.vignettes { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .8rem; }
 .vignette {
   display: block; border-radius: 6px; overflow: hidden; background: var(--fond);
   color: var(--texte); text-decoration: none; border: 1px solid var(--bord);
@@ -170,7 +208,7 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
 
 /* ---------- Lightbox ---------- */
 .lightbox {
-  position: fixed; inset: 0; z-index: 100; background: rgba(10, 8, 6, .9);
+  position: fixed; inset: 0; z-index: 200; background: rgba(10, 8, 6, .9);
   display: flex; align-items: center; justify-content: center; padding: 1rem;
 }
 .lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -239,8 +277,8 @@ fieldset { border: 1px solid var(--bord); border-radius: 6px; margin: 0; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 900px) {
-  .carte-layout, .carte-layout.avec-panneau, .fiche { grid-template-columns: minmax(0, 1fr); }
-  .panneau { max-height: none; }
+  .fiche { grid-template-columns: minmax(0, 1fr); }
+  .vignettes { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .table-cartes thead { display: none; }
   .table-cartes, .table-cartes tbody, .table-cartes tr, .table-cartes td { display: block; }
   .table-cartes tr { display: grid; grid-template-columns: 72px 1fr; gap: 0 .6rem; padding: .5rem; border-bottom: 1px solid var(--bord); }

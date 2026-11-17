@@ -22,3 +22,4 @@ define('THUMB_MAX', 480);    // plus grand côté de la miniature
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/helpers.php';
 require_once __DIR__ . '/includes/pays.php';
+require_once __DIR__ . '/includes/subdivisions.php';

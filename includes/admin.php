@@ -15,7 +15,7 @@ function entete_admin(string $actif, string $titre): void
     $f = flash();
     ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr"<?= attr_theme() ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -34,6 +34,7 @@ function entete_admin(string $actif, string $titre): void
         <a href="migrations.php" class="<?= $actif === 'migrations' ? 'actif' : '' ?>"><i class="fa-solid fa-database"></i> Migrations</a>
         <a href="../index.php" target="_blank"><i class="fa-solid fa-earth-europe"></i> Site public</a>
     </nav>
+    <?= selecteur_theme(['groupe' => 'Thème', 'auto' => 'Thème par défaut (celui du système)', 'light' => 'Mode clair', 'dark' => 'Mode sombre']) ?>
     <a href="logout.php" class="deconnexion"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a>
 </header>
 <main class="contenu">
@@ -53,6 +54,7 @@ function pied_admin(): void
 </main>
 <div id="lightbox" class="lightbox" hidden><img alt=""><button type="button" aria-label="Fermer">&times;</button></div>
 <script src="../assets/lightbox.js"></script>
+<script src="../assets/theme.js"></script>
 </body>
 </html>
     <?php

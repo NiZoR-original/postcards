@@ -90,7 +90,8 @@ entete_admin('cartes', 'Cartes');
                 <a href="carte.php?id=<?= (int) $c['id'] ?>"><strong><?= h($c['reference'] ?: '(sans réf.)') ?></strong></a>
                 <small><?= h(libelle_plateforme($c['plateforme'])) ?><?= $c['titre'] ? ' · ' . h($c['titre']) : '' ?></small>
             </td>
-            <td><?= drapeau($c['pays_code']) ?> <?= h($pays[$c['pays_code']] ?? $c['pays_code']) ?></td>
+            <td><?= drapeau($c['pays_code']) ?> <?= h($pays[$c['pays_code']] ?? $c['pays_code']) ?>
+                <?php if ($c['subdivision']): ?><small><?= h(nom_subdivision($c['subdivision'])) ?></small><?php endif; ?></td>
             <td><?= h($c['correspondant']) ?></td>
             <td><?= h(date_lisible($c['date_envoi'])) ?></td>
             <td><?= $c['date_reception'] ? h(date_lisible($c['date_reception'])) : ($c['sens'] === 'envoyee' ? '<em>en route</em>' : '') ?></td>
