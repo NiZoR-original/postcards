@@ -16,7 +16,7 @@ PHP 8.5 natif sans framework ni Composer, MySQL via PDO, servi par Apache + PHP-
 
 Le serveur de production n'a **pas d'accès SSH** : les fichiers y sont déposés en FTP, et tout ce qui doit tourner côté serveur doit être faisable depuis le navigateur.
 - **Installation** : `install.php` (installeur web). Il vérifie l'environnement, écrit `db_config.php` (ou affiche son contenu à déposer en FTP si la racine n'est pas inscriptible), applique les migrations et crée le premier admin. Il se verrouille dès qu'un admin existe et ne modifie jamais un `db_config.php` existant. Tant que `db_config.php` est absent, `config.php` redirige toutes les pages vers `install.php`.
-- **Déploiement** : hébergement mutualisé OVH. `.github/workflows/deploiement.yml` envoie en FTP les fichiers modifiés à chaque push sur `main` (secrets `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD`, variables `FTP_DIR`/`FTP_PROTOCOL`). `scripts/`, `db_config.php` et les photos ne sont jamais envoyés ; les dossiers `uploads/full|thumbs` sont créés par `install.php`.
+- **Déploiement** : hébergement mutualisé OVH. `.github/workflows/deploiement.yml` envoie en FTP les fichiers modifiés à chaque push sur `main` (secrets `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD`, variables `FTP_DIR` et `FTP_PROTOCOL`, ftp par défaut : OVH refuse le FTPS). `scripts/`, `db_config.php` et les photos ne sont jamais envoyés ; les dossiers `uploads/full|thumbs` sont créés par `install.php`.
 - **Mises à jour** : après le déploiement, appliquer les migrations depuis la page admin `admin/migrations.php` (un bandeau dans l'admin signale celles en attente).
 - Les scripts `scripts/*.php` en ligne de commande font la même chose pour un usage local.
 

@@ -5,7 +5,7 @@
 # À configurer dans GitHub → Settings → Secrets and variables → Actions :
 #   Secrets   : FTP_SERVER (ex. ftp.clusterXXX.hosting.ovh.net), FTP_USERNAME, FTP_PASSWORD
 #   Variables : FTP_DIR (dossier distant, avec / final, ex. /www/postcards/)
-#               FTP_PROTOCOL (facultatif : ftps par défaut, ftp si le serveur refuse le TLS)
+#               FTP_PROTOCOL (facultatif : ftp par défaut, le mutualisé OVH sans SSH refuse le FTPS)
 #
 # Après un déploiement qui ajoute une migration : Admin → Migrations → Appliquer.
 
@@ -36,7 +36,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ${{ vars.FTP_PROTOCOL || 'ftps' }}
+          protocol: ${{ vars.FTP_PROTOCOL || 'ftp' }}
           server-dir: ${{ vars.FTP_DIR }}
           exclude: |
             **/.git*
