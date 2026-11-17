@@ -31,6 +31,8 @@ function entete_admin(string $actif, string $titre): void
         <a href="index.php" class="<?= $actif === 'cartes' ? 'actif' : '' ?>"><i class="fa-solid fa-envelope"></i> Cartes</a>
         <a href="carte.php" class="<?= $actif === 'nouvelle' ? 'actif' : '' ?>"><i class="fa-solid fa-plus"></i> Nouvelle carte</a>
         <a href="swaps.php" class="<?= $actif === 'swaps' ? 'actif' : '' ?>"><i class="fa-solid fa-right-left"></i> Swaps</a>
+        <a href="statistiques.php" class="<?= $actif === 'statistiques' ? 'actif' : '' ?>"><i class="fa-solid fa-chart-column"></i> Statistiques</a>
+        <a href="parametres.php" class="<?= $actif === 'parametres' ? 'actif' : '' ?>"><i class="fa-solid fa-gear"></i> Paramètres</a>
         <a href="migrations.php" class="<?= $actif === 'migrations' ? 'actif' : '' ?>"><i class="fa-solid fa-database"></i> Migrations</a>
         <a href="../index.php" target="_blank"><i class="fa-solid fa-earth-europe"></i> Site public</a>
     </nav>

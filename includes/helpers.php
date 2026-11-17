@@ -63,7 +63,7 @@ function lien_plateforme(array $carte): ?string
 
 function libelle_plateforme(string $p): string
 {
-    return ['postcrossing' => 'Postcrossing', 'cardzilla' => 'Cardzilla', 'swap' => 'Swap', 'autre' => 'Autre'][$p] ?? $p;
+    return ['postcrossing' => 'Postcrossing', 'cardzilla' => 'Cardzilla', 'discord' => 'Discord', 'swap' => 'Swap', 'autre' => 'Autre'][$p] ?? $p;
 }
 
 /** Durée de voyage en jours, ou null. */
@@ -132,4 +132,67 @@ function selecteur_theme(array $libelles): string
             . '<i class="fa-solid ' . $icone . '"></i></button>';
     }
     return $html . '</div>';
+}
+
+/**
+ * Paramètre du site (table parametres, Admin > Paramètres), null s'il est vide ou absent.
+ * Tolère l'absence de la table tant que la migration 0003 n'est pas appliquée.
+ */
+function parametre(string $cle): ?string
+{
+    static $cache = null;
+    if ($cache === null) {
+        try {
+            $cache = db()->query('SELECT cle, valeur FROM parametres')->fetchAll(PDO::FETCH_KEY_PAIR);
+        } catch (PDOException) {
+            $cache = [];
+        }
+    }
+    $v = $cache[$cle] ?? null;
+    return $v === null || $v === '' ? null : $v;
+}
+
+/** Liens vers mes profils Postcrossing / Cardzilla / Discord, selon les noms d'utilisateur saisis dans les paramètres. */
+function liens_profils(): array
+{
+    $liens = [];
+    if ($u = parametre('profil_postcrossing')) {
+        $liens['postcrossing'] = 'https://www.postcrossing.com/user/' . rawurlencode($u);
+    }
+    if ($u = parametre('profil_cardzilla')) {
+        $liens['cardzilla'] = 'https://cardzilla.eu/users/' . rawurlencode($u);
+    }
+    if ($u = parametre('profil_discord')) {
+        $liens['discord'] = 'https://discord.com/users/' . rawurlencode($u);
+    }
+    return $liens;
+}
+
+/**
+ * Pays (ISO alpha-2) d'un fuseau horaire IANA envoyé par le navigateur, null si inconnu (UTC, Etc/…).
+ * Sert aux statistiques de visite : le pays n'est jamais déduit de l'adresse IP.
+ */
+function pays_du_fuseau(string $tz): ?string
+{
+    // Anciens noms encore renvoyés par certains systèmes (PHP ne leur associe pas de pays)
+    $alias = [
+        'Europe/Kiev' => 'UA', 'Asia/Calcutta' => 'IN', 'Asia/Saigon' => 'VN', 'Asia/Katmandu' => 'NP',
+        'Asia/Rangoon' => 'MM', 'America/Montreal' => 'CA', 'America/Buenos_Aires' => 'AR', 'Atlantic/Faeroe' => 'FO',
+        'Asia/Istanbul' => 'TR', 'Europe/Belfast' => 'GB', 'Asia/Dacca' => 'BD', 'Asia/Ulan_Bator' => 'MN',
+        'Pacific/Samoa' => 'AS', 'America/Godthab' => 'GL', 'Australia/ACT' => 'AU', 'Australia/NSW' => 'AU',
+        'Asia/Chongqing' => 'CN', 'Asia/Harbin' => 'CN', 'America/Indianapolis' => 'US', 'US/Eastern' => 'US',
+        'US/Central' => 'US', 'US/Mountain' => 'US', 'US/Pacific' => 'US', 'Canada/Eastern' => 'CA',
+    ];
+    if (isset($alias[$tz])) {
+        return $alias[$tz];
+    }
+    if (!preg_match('#^[A-Za-z_]+(/[A-Za-z0-9_+\-]+){1,2}$#', $tz)) {
+        return null;
+    }
+    try {
+        $code = (new DateTimeZone($tz))->getLocation()['country_code'] ?? '??';
+    } catch (Exception) {
+        return null;
+    }
+    return pays_valide($code) ? $code : null;
 }
