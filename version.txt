@@ -1,4 +1,5 @@
 0.1.0.0 du 17/11/2026
+* BUGFIX : Déploiement OVH - échec « 500 This security scheme is not implemented » : le mutualisé OVH n'accepte pas le FTPS, envoi en FTP simple par défaut
 * NEW : Carte du monde publique (FR/EN) - pays colorés selon le nombre de cartes reçues, envoyées ou les deux, petits pays absents du fond de carte en marqueurs, clic sur un pays = vignettes de ses cartes, liste de tous les pays sous la carte
 * NEW : Fiche publique d'une carte - photos agrandissables, dates, durée du voyage, distance, lien vers Postcrossing (déduit de la référence) ou Cardzilla
 * NEW : Page publique des swaps - catalogue des cartes à échanger pour le Discord Postcrossing, filtre par thème, numéro à citer, réservées grisées, échangées masquées
