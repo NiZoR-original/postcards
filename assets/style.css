@@ -102,9 +102,15 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
   background: var(--primaire); color: var(--primaire-texte); border-color: var(--primaire);
 }
 
-.carte-layout { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 1rem; align-items: start; }
+/* Panneau du pays masqué tant qu'aucun pays n'est choisi : la carte prend toute la largeur */
+.carte-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+.carte-layout.avec-panneau { grid-template-columns: minmax(0, 1fr) 360px; }
+.pied-carte { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .3rem 1rem; }
+.aide-clic { margin: 0; padding: .2rem .5rem; font-size: .8rem; color: var(--discret); }
+.panneau-titre { display: flex; justify-content: space-between; align-items: start; gap: .5rem; }
+.panneau-titre button { background: none; border: 0; font-size: 1.4rem; line-height: 1; color: var(--discret); cursor: pointer; padding: 0 .2rem; }
 .carte-monde { background: var(--surface); border-radius: var(--rayon); box-shadow: var(--ombre); padding: .5rem; position: relative; }
-#map { width: 100%; aspect-ratio: 2 / 1.1; min-height: 260px; }
+#map { width: 100%; aspect-ratio: 2 / 1.1; min-height: 260px; max-height: 68vh; }
 .jvm-tooltip { font-family: inherit; font-size: .85rem; background: var(--texte); color: var(--fond); }
 .jvm-zoom-btn { background: var(--primaire); }
 .legende { display: flex; gap: .8rem; flex-wrap: wrap; font-size: .8rem; color: var(--discret); padding: .2rem .5rem; }
@@ -233,7 +239,7 @@ fieldset { border: 1px solid var(--bord); border-radius: 6px; margin: 0; }
 
 /* ---------- Mobile ---------- */
 @media (max-width: 900px) {
-  .carte-layout, .fiche { grid-template-columns: minmax(0, 1fr); }
+  .carte-layout, .carte-layout.avec-panneau, .fiche { grid-template-columns: minmax(0, 1fr); }
   .panneau { max-height: none; }
   .table-cartes thead { display: none; }
   .table-cartes, .table-cartes tbody, .table-cartes tr, .table-cartes td { display: block; }

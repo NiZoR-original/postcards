@@ -77,3 +77,12 @@ const COORDS_PETITS_PAYS = [
     'UM' => [19.28, 166.65], 'GS' => [-54.43, -36.59], 'HM' => [-53.08, 73.5], 'BV' => [-54.42, 3.36],
     'AQ' => [-75.0, 0.0],
 ];
+
+// Points toujours affichés sur la carte, même sans carte reçue ni envoyée :
+// micro-États souverains absents du fond, plus Hong Kong, Macao et le Kosovo.
+// Les autres territoires de COORDS_PETITS_PAYS n'ont un point que s'ils ont des cartes.
+const PETITS_PAYS_TOUJOURS = [
+    'AD', 'AG', 'BB', 'BH', 'CV', 'DM', 'FM', 'GD', 'KI', 'KM', 'KN', 'LC', 'LI', 'MC', 'MH', 'MT',
+    'MU', 'MV', 'NR', 'PW', 'SC', 'SG', 'SM', 'ST', 'TO', 'TV', 'VA', 'VC', 'WS',
+    'HK', 'MO', 'XK',
+];

@@ -16,12 +16,12 @@ foreach ($rows as $r) {
 }
 uasort($stats, fn($a, $b) => ($b['recue'] + $b['envoyee']) <=> ($a['recue'] + $a['envoyee']) ?: strcmp($a['nom'], $b['nom']));
 
-$coords = array_intersect_key(COORDS_PETITS_PAYS, $stats);
+$coords = array_intersect_key(COORDS_PETITS_PAYS, $stats + array_flip(PETITS_PAYS_TOUJOURS));
 
 $i18n_js = [
     'recues' => t('recues'), 'envoyees' => t('envoyees'),
     'aucune' => t('aucune_carte'), 'sansPhoto' => t('sans_photo'),
-    'enRoute' => t('en_route'),
+    'enRoute' => t('en_route'), 'fermer' => t('fermer'),
 ];
 
 entete_public('carte', '', '
@@ -39,14 +39,15 @@ entete_public('carte', '', '
     <button type="button" data-mode="tous"><?= h(t('toutes')) ?></button>
 </div>
 
-<div class="carte-layout">
+<div class="carte-layout" id="carte-layout">
     <div class="carte-monde">
         <div id="map"></div>
-        <div id="legende" class="legende" aria-label="<?= h(t('legende')) ?>"></div>
+        <div class="pied-carte">
+            <div id="legende" class="legende" aria-label="<?= h(t('legende')) ?>"></div>
+            <p class="aide-clic"><i class="fa-solid fa-hand-pointer"></i> <?= h(t('clic_pays')) ?></p>
+        </div>
     </div>
-    <aside id="panneau" class="panneau">
-        <p class="aide"><i class="fa-solid fa-hand-pointer"></i> <?= h(t('clic_pays')) ?></p>
-    </aside>
+    <aside id="panneau" class="panneau" hidden></aside>
 </div>
 
 <section class="liste-pays">
@@ -64,6 +65,15 @@ entete_public('carte', '', '
 <?php
 pied_public('
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.js"></script>
+<script>
+// jsVectorMap ne publie pas ses fonds de carte : on garde une copie au moment où world.js l\'enregistre
+// (map.js en a besoin pour savoir quels pays existent sur le fond et sa projection).
+(function () {
+  var ajouter = jsVectorMap.addMap;
+  window.PC_FONDS = {};
+  jsVectorMap.addMap = function (nom, fond) { window.PC_FONDS[nom] = fond; return ajouter.apply(this, arguments); };
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/maps/world.js"></script>
 <script>
 window.PC = ' . json_encode([

@@ -1,4 +1,8 @@
 0.1.0.0 du 17/11/2026
+* BUGFIX : Carte du monde - les pays n'étaient jamais coloriés (jsVectorMap ne publie pas son fond de carte, la liste des pays dessinés restait vide) : fond capturé à son chargement
+* UPDATE : Carte du monde - micro-États (Monaco, Andorre, Malte, Singapour, Vatican…), Hong Kong, Macao et Kosovo toujours affichés en points cliquables, gris sans carte ; Samoa, Tonga, Wallis-et-Futuna et voisins n'étaient plus dessinés (au-delà de la ligne de changement de date pour la projection)
+* UPDATE : Carte du monde - « Cliquez sur un pays » sur la ligne de la légende ; panneau du pays affiché seulement au clic (carte en pleine largeur sinon), avec bouton de fermeture
+* UPDATE : Langue du site public - français si la langue préférée du navigateur est le français, anglais pour toute autre langue (au lieu du français par défaut) ; le choix FR/EN reste prioritaire
 * BUGFIX : Déploiement OVH - échec « 500 This security scheme is not implemented » : le mutualisé OVH n'accepte pas le FTPS, envoi en FTP simple par défaut
 * NEW : Carte du monde publique (FR/EN) - pays colorés selon le nombre de cartes reçues, envoyées ou les deux, petits pays absents du fond de carte en marqueurs, clic sur un pays = vignettes de ses cartes, liste de tous les pays sous la carte
 * NEW : Fiche publique d'une carte - photos agrandissables, dates, durée du voyage, distance, lien vers Postcrossing (déduit de la référence) ou Cardzilla

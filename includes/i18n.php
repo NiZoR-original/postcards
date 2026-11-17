@@ -15,10 +15,38 @@ function langue_courante(): string
     } elseif (isset($_COOKIE['pc_lang']) && in_array($_COOKIE['pc_lang'], $dispo, true)) {
         $lang = $_COOKIE['pc_lang'];
     } else {
-        $accept = strtolower(substr($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'fr', 0, 2));
-        $lang = in_array($accept, $dispo, true) ? $accept : 'fr';
+        $lang = langue_navigateur($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
     }
     return $lang;
+}
+
+/**
+ * Langue déduite de l'en-tête Accept-Language : 'fr' si la langue préférée du visiteur
+ * est le français (fr, fr-FR, fr-CA…), 'en' pour toute autre langue ou en-tête absent.
+ */
+function langue_navigateur(string $accept): string
+{
+    $meilleure = null;
+    $poidsMax = -1.0;
+    foreach (explode(',', $accept) as $i => $partie) {
+        $morceaux = explode(';', trim($partie));
+        $tag = strtolower(trim($morceaux[0]));
+        if ($tag === '' || $tag === '*') {
+            continue;
+        }
+        $q = 1.0;
+        foreach (array_slice($morceaux, 1) as $param) {
+            if (preg_match('/^\s*q\s*=\s*([0-9.]+)/', $param, $m)) {
+                $q = (float) $m[1];
+            }
+        }
+        // à poids égal, l'ordre de l'en-tête départage (le premier gagne)
+        if ($q > $poidsMax) {
+            $poidsMax = $q;
+            $meilleure = $tag;
+        }
+    }
+    return $meilleure !== null && ($meilleure === 'fr' || str_starts_with($meilleure, 'fr-')) ? 'fr' : 'en';
 }
 
 function t(string $cle, ...$args): string
@@ -55,6 +83,7 @@ function t(string $cle, ...$args): string
             'filtre_tous' => 'Toutes',
             'legende' => 'Nombre de cartes',
             'sans_photo' => 'Pas de photo',
+            'fermer' => 'Fermer',
         ],
         'en' => [
             'site_titre' => 'My postcards',
@@ -87,6 +116,7 @@ function t(string $cle, ...$args): string
             'filtre_tous' => 'All',
             'legende' => 'Number of postcards',
             'sans_photo' => 'No photo',
+            'fermer' => 'Close',
         ],
     ];
     $s = $dico[langue_courante()][$cle] ?? $dico['fr'][$cle] ?? $cle;
