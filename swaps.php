@@ -15,6 +15,12 @@ entete_public('swaps', t('swaps_titre'));
 ?>
 <h1><?= h(t('swaps_titre')) ?></h1>
 <p class="intro"><?= h(t('swaps_intro')) ?></p>
+<?php if ($pseudo = parametre('pseudo_discord')):
+    $profil = liens_profils()['discord'] ?? null; ?>
+<p class="intro contact-discord"><i class="fa-brands fa-discord"></i> <?= h(t('swaps_pseudo')) ?>
+    <?php if ($profil): ?><a href="<?= h($profil) ?>" target="_blank" rel="noopener me"><strong>@<?= h($pseudo) ?></strong></a>
+    <?php else: ?><strong>@<?= h($pseudo) ?></strong><?php endif; ?></p>
+<?php endif; ?>
 
 <?php if ($themes): ?>
 <div class="filtres" role="toolbar">
