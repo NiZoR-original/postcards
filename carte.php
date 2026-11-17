@@ -18,7 +18,9 @@ if (!$c) {
 }
 
 $photos = photos_de('carte', (int) $c['id'], true);
-$pays = drapeau($c['pays_code']) . ' ' . nom_pays($c['pays_code'], $lang) . ($c['ville'] ? ' — ' . $c['ville'] : '');
+$pays = drapeau($c['pays_code']) . ' ' . nom_pays($c['pays_code'], $lang)
+    . ($c['subdivision'] ? ' — ' . nom_subdivision($c['subdivision'], $lang) : '')
+    . ($c['ville'] ? ' — ' . $c['ville'] : '');
 $lien = lien_plateforme($c);
 $jours = jours_voyage($c);
 

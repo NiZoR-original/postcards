@@ -101,3 +101,35 @@ function url_photo(int $id, string $taille = 'thumb', string $base = ''): string
 {
     return $base . 'photo.php?id=' . $id . ($taille === 'full' ? '&s=full' : '');
 }
+
+/** Thème choisi par le visiteur : 'light', 'dark' ou 'auto' (suit le système). Cookie posé par assets/theme.js. */
+function theme_courant(): string
+{
+    $t = $_COOKIE['pc_theme'] ?? 'auto';
+    return in_array($t, ['light', 'dark'], true) ? $t : 'auto';
+}
+
+/** Attribut data-theme à poser sur <html> (vide si le thème suit le système). */
+function attr_theme(): string
+{
+    $t = theme_courant();
+    return $t === 'auto' ? '' : ' data-theme="' . $t . '"';
+}
+
+/**
+ * Sélecteur de thème (système / clair / sombre). $libelles : ['auto' => …, 'light' => …, 'dark' => …, 'groupe' => …].
+ * Nécessite assets/theme.js.
+ */
+function selecteur_theme(array $libelles): string
+{
+    $icones = ['auto' => 'fa-circle-half-stroke', 'light' => 'fa-sun', 'dark' => 'fa-moon'];
+    $actuel = theme_courant();
+    $html = '<div class="themes" role="group" aria-label="' . h($libelles['groupe']) . '">';
+    foreach ($icones as $t => $icone) {
+        $actif = $t === $actuel;
+        $html .= '<button type="button" data-theme-choix="' . $t . '" class="' . ($actif ? 'actif' : '') . '"'
+            . ' aria-pressed="' . ($actif ? 'true' : 'false') . '" title="' . h($libelles[$t]) . '" aria-label="' . h($libelles[$t]) . '">'
+            . '<i class="fa-solid ' . $icone . '"></i></button>';
+    }
+    return $html . '</div>';
+}

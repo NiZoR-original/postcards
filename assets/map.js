@@ -1,22 +1,47 @@
-// Carte du monde publique (jsVectorMap 1.6). Données injectées par index.php dans window.PC :
-//   stats  : { FR: {recue, envoyee, nom}, … }   — cartes publiques uniquement
-//   coords : { SG: [lat, lng], … }              — petits pays absents du fond « world »
+// Cartes publiques (jsVectorMap 1.6) : monde (index.php) et USA & Canada (usa-canada.php).
+// Données injectées par includes/page_carte.php dans window.PC :
+//   fond   : nom du fond jsVectorMap ('world', 'usa_canada'), capturé par assets/fonds/capture.js
+//   stats  : { FR: {recue, envoyee, nom, drapeau}, … }   — cartes publiques uniquement
+//   coords : { SG: [lat, lng], … } (fond projeté) ou { 'US-DC': [x, y] } (fond en pixels) — zones en points
+//   noms   : { code: nom } des zones du fond, pour les tooltips (sinon noms des pays par Intl)
 (function () {
   'use strict';
   const PC = window.PC;
-  const BUCKETS = [
-    { key: 'b1', min: 1, max: 1, color: '#f6d6a8' },
-    { key: 'b2', min: 2, max: 5, color: '#efa95a' },
-    { key: 'b3', min: 6, max: 20, color: '#d9762b' },
-    { key: 'b4', min: 21, max: Infinity, color: '#9c4a14' },
-  ];
+  const COULEURS = ['#f6d6a8', '#efa95a', '#d9762b', '#9c4a14'];
+  // Classes de la légende, recalculées à chaque construction selon les données affichées (calculerClasses)
+  let BUCKETS = [];
+
+  // 4 classes d'entiers : 1, 2, 3, 4 tant que le maximum ne dépasse pas 4 ; au-delà, 4 plages jointives
+  // de 1 au maximum, bornes arrondies (max 10 → 1–3, 4–5, 6–8, 9–10). Plages jamais vides : pas > 1.
+  function calculerClasses(max) {
+    if (max <= COULEURS.length) {
+      return COULEURS.map((color, i) => ({ key: 'b' + i, min: i + 1, max: i + 1, color }));
+    }
+    let debut = 1;
+    return COULEURS.map((color, i) => {
+      const fin = Math.round(max * (i + 1) / COULEURS.length);
+      const classe = { key: 'b' + i, min: debut, max: fin, color };
+      debut = fin + 1;
+      return classe;
+    });
+  }
   let mode = 'recue';
   let map = null;
   let paysActif = null;
   const noms = new Intl.DisplayNames([PC.lang], { type: 'region' });
+  const GRIS = '#b9b2a7';
 
-  const worldPaths = (window.jsVectorMap && jsVectorMap.maps && jsVectorMap.maps.world)
-    ? jsVectorMap.maps.world.paths : {};
+  function nomPays(code) {
+    if (PC.stats[code]) return PC.stats[code].nom;
+    if (PC.noms[code]) return PC.noms[code];
+    try { return noms.of(code) || code; } catch (e) { return code; }
+  }
+
+  // Fond capturé par assets/fonds/capture.js (jsVectorMap ne l'expose pas)
+  const fond = (window.PC_FONDS && window.PC_FONDS[PC.fond]) || { paths: {} };
+  const worldPaths = fond.paths;
+  // Fond projeté (monde) : points en [lat, lng] ; fond sans projection (USA & Canada) : en pixels
+  const meridien = fond.projection ? fond.projection.centralMeridian || 0 : null;
 
   function nb(code) {
     const s = PC.stats[code];
@@ -34,31 +59,48 @@
 
   function construire() {
     if (map) map.destroy();
-    document.getElementById('map').innerHTML = '';
+    const conteneur = document.getElementById('map');
+    conteneur.innerHTML = '';
+    conteneur.dataset.fond = PC.fond; // épaisseurs des frontières propres à chaque fond (style.css)
+
+    const max = Math.max(0, ...Object.keys(PC.stats).map(nb));
+    BUCKETS = calculerClasses(max);
+    legende();
 
     const values = {};
     const markers = [];
     for (const code of Object.keys(PC.stats)) {
       const n = nb(code);
-      if (!n) continue;
-      if (worldPaths[code]) {
-        values[code] = bucket(n).key;
-      } else if (PC.coords[code]) {
-        markers.push({ name: PC.stats[code].nom, coords: PC.coords[code], code: code, style: { fill: bucket(n).color } });
-      }
+      if (n && worldPaths[code]) values[code] = bucket(n).key;
     }
+    // Zones absentes du fond ou trop petites pour être cliquées (PC.coords) : un point,
+    // coloré comme une zone si elle a des cartes, gris sinon
+    for (const code of Object.keys(PC.coords)) {
+      const n = nb(code);
+      // Le fond est centré sur le méridien 11,5° E : une longitude à moins de -168,5°
+      // (Samoa, Tonga, Wallis…) sortirait du cadre et le point serait ignoré.
+      let [a, b] = PC.coords[code];
+      if (meridien !== null && b - meridien < -180) b += 360;
+      markers.push({
+        name: nomPays(code), coords: [a, b], code: code,
+        style: { initial: { fill: n ? bucket(n).color : GRIS, r: n ? 5 : 3.5 } },
+      });
+    }
+    // Les points avec des cartes dessinés en dernier, donc au-dessus des points gris
+    markers.sort((a, b) => (nb(a.code) > 0) - (nb(b.code) > 0));
     const scale = Object.fromEntries(BUCKETS.map(b => [b.key, b.color]));
 
     map = new jsVectorMap({
       selector: '#map',
-      map: 'world',
+      map: PC.fond,
       zoomOnScroll: false,
       zoomButtons: true,
       regionsSelectable: true,
       regionsSelectableOne: true,
       selectedRegions: paysActif && worldPaths[paysActif] ? [paysActif] : [],
       regionStyle: {
-        initial: { fill: '#e4e1da', stroke: '#fff', strokeWidth: 0.4, fillOpacity: 1 },
+        // frontières dessinées par tracerFrontieres() au-dessus des zones
+        initial: { fill: '#e4e1da', stroke: 'none', fillOpacity: 1 },
         hover: { fillOpacity: 0.75, cursor: 'pointer' },
         selected: { fill: '#2f6f8f' },
       },
@@ -70,44 +112,92 @@
       series: { regions: [{ attribute: 'fill', scale: scale, values: values }] },
       onRegionTooltipShow(event, tooltip, code) {
         const s = PC.stats[code];
-        let nom = code;
-        try { nom = noms.of(code) || code; } catch (e) { /* code non reconnu par Intl */ }
+        const nom = nomPays(code);
         tooltip.text(s ? nom + ' — ' + s.recue + ' ↓ · ' + s.envoyee + ' ↑' : nom);
       },
       onMarkerTooltipShow(event, tooltip, index) {
         const m = markers[index];
         const s = PC.stats[m.code];
-        tooltip.text(m.name + ' — ' + s.recue + ' ↓ · ' + s.envoyee + ' ↑');
+        tooltip.text(s ? m.name + ' — ' + s.recue + ' ↓ · ' + s.envoyee + ' ↑' : m.name);
       },
       onRegionClick(event, code) { ouvrirPays(code); },
       onMarkerClick(event, index) { ouvrirPays(markers[index].code); },
+      // Au premier affichage, jsVectorMap attend DOMContentLoaded avant de dessiner : les zones
+      // n'existent qu'à partir de cet événement
+      onLoaded() { tracerFrontieres(); },
     });
+  }
+
+  // Frontières : trait foncé de 1 px bordé de blanc, identique sur tous les fonds et dans les deux thèmes.
+  // jsVectorMap ne dessine qu'un contour par zone : on superpose une copie des contours (sans remplissage,
+  // non cliquable) dans le groupe des zones, pour qu'elle suive le zoom et le déplacement.
+  function tracerFrontieres() {
+    const groupe = document.querySelector('#map #jvm-regions-group');
+    if (!groupe) return;
+    const SVG = 'http://www.w3.org/2000/svg';
+    const couche = document.createElementNS(SVG, 'g');
+    couche.setAttribute('class', 'pc-frontieres');
+    const liseres = document.createElementNS(SVG, 'g');
+    liseres.setAttribute('class', 'pc-liseres');
+    const traits = document.createElementNS(SVG, 'g');
+    traits.setAttribute('class', 'pc-traits');
+    groupe.querySelectorAll('path.jvm-region').forEach(p => {
+      if ((p.getAttribute('data-code') || '').startsWith('_')) return; // cadres d'encart
+      const d = p.getAttribute('d');
+      for (const g of [liseres, traits]) {
+        const t = document.createElementNS(SVG, 'path');
+        t.setAttribute('d', d);
+        g.appendChild(t);
+      }
+    });
+    // tous les liserés d'abord, puis tous les traits : aucun remplissage ne vient les recouvrir
+    couche.append(liseres, traits);
+    groupe.appendChild(couche);
   }
 
   function legende() {
     document.getElementById('legende').innerHTML = BUCKETS.map(b =>
-      '<span><i style="background:' + b.color + '"></i>' + b.min + (b.max === Infinity ? '+' : (b.max > b.min ? '–' + b.max : '')) + '</span>'
+      '<span><i style="background:' + b.color + '"></i>' + b.min + (b.max > b.min ? '–' + b.max : '') + '</span>'
     ).join('');
   }
 
   async function ouvrirPays(code) {
     paysActif = code;
     const panneau = document.getElementById('panneau');
+    afficherPanneau(true);
     panneau.classList.add('charge');
     try {
       const sens = mode === 'tous' ? '' : mode;
-      const r = await fetch('api/pays.php?code=' + encodeURIComponent(code) + '&sens=' + sens + '&lang=' + PC.lang);
+      const r = await fetch('api/pays.php?' + (code.includes('-') ? 'subdivision' : 'code') + '=' + encodeURIComponent(code) + '&sens=' + sens + '&lang=' + PC.lang);
       const d = await r.json();
       panneau.innerHTML = rendu(d);
     } catch (e) {
       panneau.innerHTML = '<p class="erreur">Erreur de chargement.</p>';
     }
     panneau.classList.remove('charge');
-    if (window.matchMedia('(max-width: 900px)').matches) panneau.scrollIntoView({ behavior: 'smooth' });
+    // Le panneau est sous la carte : on le fait apparaître à l'écran s'il n'est pas déjà visible
+    // marge haute = hauteur de la barre de menu fixe, pour que le titre du panneau ne passe pas dessous
+    const barre = document.querySelector('.topbar');
+    panneau.style.scrollMarginTop = ((barre ? barre.offsetHeight : 0) + 16) + 'px';
+    panneau.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
+  // Affiche / masque le panneau du pays, sous la carte
+  function afficherPanneau(ouvert) {
+    document.getElementById('panneau').hidden = !ouvert;
+  }
+
+  document.getElementById('panneau').addEventListener('click', e => {
+    if (!e.target.closest('[data-fermer]')) return;
+    paysActif = null;
+    afficherPanneau(false);
+    if (map) map.clearSelectedRegions();
+  });
+
   function rendu(d) {
-    let html = '<h2>' + esc(d.drapeau) + ' ' + esc(d.nom) + '</h2>';
+    let html = '<div class="panneau-titre"><h2>' + esc(d.drapeau) + ' ' + esc(d.nom) + '</h2>' +
+      '<button type="button" data-fermer aria-label="' + esc(PC.t.fermer) + '">&times;</button></div>';
+    if (d.lien) html += '<p><a class="bouton secondaire" href="' + esc(d.lien.url) + '"><i class="fa-solid fa-map"></i> ' + esc(d.lien.texte) + '</a></p>';
     if (!d.cartes.length) return html + '<p class="aide">' + esc(PC.t.aucune) + '</p>';
     html += '<div class="vignettes">';
     for (const c of d.cartes) {
@@ -137,6 +227,5 @@
     });
   });
 
-  legende();
   construire();
 })();
