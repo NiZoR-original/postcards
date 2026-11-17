@@ -47,6 +47,8 @@ function pied_public(string $scripts = ''): void
 </main>
 <footer class="pied-site">
     <a href="confidentialite.php"><?= h(t('confidentialite')) ?></a>
+    <span aria-hidden="true">·</span>
+    <a href="admin/"><?= h(t(est_admin() ? 'administration' : 'connexion')) ?></a>
 </footer>
 <?php if (!isset($_COOKIE['pc_cookies'])): ?>
 <div id="bandeau-cookies" class="bandeau-cookies" role="dialog" aria-live="polite" aria-label="<?= h(t('cookies_titre')) ?>" hidden>
