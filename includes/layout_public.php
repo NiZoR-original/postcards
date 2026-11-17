@@ -7,7 +7,7 @@ function entete_public(string $actif, string $titre = '', string $head_extra = '
     $titre_complet = ($titre ? $titre . ' · ' : '') . t('site_titre');
     ?>
 <!DOCTYPE html>
-<html lang="<?= h($lang) ?>">
+<html lang="<?= h($lang) ?>"<?= attr_theme() ?>>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,12 +21,14 @@ function entete_public(string $actif, string $titre = '', string $head_extra = '
     <a class="brand" href="index.php"><i class="fa-solid fa-envelope-open-text"></i> <?= h(t('site_titre')) ?></a>
     <nav>
         <a href="index.php" class="<?= $actif === 'carte' ? 'actif' : '' ?>"><i class="fa-solid fa-earth-europe"></i> <?= h(t('nav_carte')) ?></a>
+        <a href="usa-canada.php" class="<?= $actif === 'usa' ? 'actif' : '' ?>"><i class="fa-solid fa-flag-usa"></i> <?= h(t('nav_usa')) ?></a>
         <a href="swaps.php" class="<?= $actif === 'swaps' ? 'actif' : '' ?>"><i class="fa-solid fa-right-left"></i> <?= h(t('nav_swaps')) ?></a>
     </nav>
     <div class="langues">
         <a href="<?= h(url_langue('fr')) ?>" class="<?= $lang === 'fr' ? 'actif' : '' ?>">FR</a>
         <a href="<?= h(url_langue('en')) ?>" class="<?= $lang === 'en' ? 'actif' : '' ?>">EN</a>
     </div>
+    <?= selecteur_theme(['groupe' => t('theme'), 'auto' => t('theme_auto'), 'light' => t('theme_clair'), 'dark' => t('theme_sombre')]) ?>
 </header>
 <main class="contenu">
     <?php
@@ -38,6 +40,7 @@ function pied_public(string $scripts = ''): void
 </main>
 <div id="lightbox" class="lightbox" hidden><img alt=""><button type="button" aria-label="Fermer">&times;</button></div>
 <script src="assets/lightbox.js"></script>
+<script src="assets/theme.js"></script>
 <?= $scripts ?>
 </body>
 </html>

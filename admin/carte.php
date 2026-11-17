@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'reference' => champ('reference', 50),
         'lien' => champ('lien'),
         'pays_code' => strtoupper((string) ($_POST['pays_code'] ?? '')),
+        'subdivision' => null, // renseignée après validation du pays
         'ville' => champ('ville', 120),
         'correspondant' => champ('correspondant', 120),
         'date_envoi' => champ_date('date_envoi'),
@@ -45,6 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!pays_valide($data['pays_code'])) {
         $erreurs[] = 'Choisissez un pays.';
     }
+    // État / province : seulement pour les pays qui en ont, et cohérent avec le pays choisi
+    $sub = champ('subdivision', 6);
+    $data['subdivision'] = subdivision_valide($sub, $data['pays_code']) ? $sub : null;
     if ($data['lien'] && !preg_match('#^https?://#i', $data['lien'])) {
         $erreurs[] = 'Le lien doit commencer par http:// ou https://.';
     }
@@ -114,10 +118,22 @@ entete_admin($id ? 'cartes' : 'nouvelle', $id ? 'Carte ' . ($c['reference'] ?? '
             <input type="url" name="lien" value="<?= $v('lien') ?>" placeholder="https://…">
         </label>
         <label><span id="lib-pays"><?= $c['sens'] === 'envoyee' ? 'Pays de destination' : 'Pays d\'origine' ?></span>
-            <select name="pays_code" required>
+            <select name="pays_code" id="pays_code" required>
                 <option value="">— Choisir —</option>
                 <?php foreach (liste_pays() as $code => $nom): ?>
                     <option value="<?= h($code) ?>" <?= ($c['pays_code'] ?? '') === $code ? 'selected' : '' ?>><?= h($nom) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </label>
+        <label id="champ-subdivision" <?= in_array($c['pays_code'] ?? '', PAYS_AVEC_SUBDIVISIONS, true) ? '' : 'hidden' ?>>État / province
+            <select name="subdivision">
+                <option value="">— Non indiqué —</option>
+                <?php foreach (PAYS_AVEC_SUBDIVISIONS as $pp): ?>
+                    <optgroup label="<?= h(nom_pays($pp)) ?>" data-pays="<?= h($pp) ?>">
+                        <?php foreach (liste_subdivisions($pp) as $code => $nom): ?>
+                            <option value="<?= h($code) ?>" <?= ($c['subdivision'] ?? '') === $code ? 'selected' : '' ?>><?= h($nom) ?></option>
+                        <?php endforeach; ?>
+                    </optgroup>
                 <?php endforeach; ?>
             </select>
         </label>
@@ -150,6 +166,25 @@ entete_admin($id ? 'cartes' : 'nouvelle', $id ? 'Carte ' . ($c['reference'] ?? '
 document.querySelectorAll('input[name=sens]').forEach(r => r.addEventListener('change', () => {
   document.getElementById('lib-pays').textContent = r.value === 'envoyee' ? 'Pays de destination' : "Pays d'origine";
 }));
+// Liste État / province : visible pour les USA et le Canada, limitée aux régions du pays choisi
+(function () {
+  const pays = document.getElementById('pays_code');
+  const champ = document.getElementById('champ-subdivision');
+  const select = champ.querySelector('select');
+  function maj() {
+    let visible = false;
+    select.querySelectorAll('optgroup').forEach(g => {
+      const ok = g.dataset.pays === pays.value;
+      g.hidden = !ok;
+      g.disabled = !ok;
+      visible = visible || ok;
+    });
+    champ.hidden = !visible;
+    if (select.selectedOptions[0] && select.selectedOptions[0].parentElement.disabled) select.value = '';
+  }
+  pays.addEventListener('change', maj);
+  maj();
+})();
 document.getElementById('reference').addEventListener('blur', e => {
   if (document.getElementById('plateforme').value === 'postcrossing') e.target.value = e.target.value.trim().toUpperCase();
 });
