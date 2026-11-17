@@ -88,7 +88,8 @@ h2 { font-size: 1.2rem; margin: .2em 0 .6em; }
 
 .contenu { max-width: 1280px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
 .pied-site { max-width: 1280px; margin: 0 auto; padding: 1rem; border-top: 1px solid var(--bord); text-align: center; font-size: .85rem; }
-.pied-site a { color: var(--discret); }
+.pied-site a, .pied-site span { color: var(--discret); }
+.pied-site span { margin: 0 .5rem; }
 
 /* Bandeau d'information cookies (assets/cookies.js), en bas de l'écran */
 .bandeau-cookies {
