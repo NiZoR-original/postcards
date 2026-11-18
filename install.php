@@ -227,7 +227,7 @@ $numeros = ['cle_absente' => 0, 'autoriser' => 0, 'verifs' => 1, 'config' => 2, 
     <meta name="robots" content="noindex">
     <title>Installation · Cartes postales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/style.css">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/style.css')) ?>">
 </head>
 <body class="login-page">
 <div class="login-card installeur">

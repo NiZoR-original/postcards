@@ -21,8 +21,8 @@ function entete_public(string $actif, string $titre = '', string $head_extra = '
     <meta name="theme-color" content="#151b28">
     <title><?= h($titre_complet) ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="stylesheet" href="assets/public.css">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/style.css')) ?>">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/public.css')) ?>">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="assets/icones/atlas-180.png">
     <link rel="icon" href="assets/icones/atlas-192.png" type="image/png">
@@ -80,7 +80,7 @@ function pied_public(string $scripts = ''): void
 <script src="assets/cookies.js"></script>
 <?php endif; ?>
 <?php fenetre_photos(t('photos'), t('fermer'), t('photo_precedente'), t('photo_suivante')); ?>
-<script src="assets/lightbox.js"></script>
+<script src="<?= h(url_asset('assets/lightbox.js')) ?>"></script>
 <script src="assets/theme.js"></script>
 <script src="assets/mobile.js"></script>
 <?php // l'administrateur n'est pas compté (le script ne sert alors qu'au bouton d'opposition de la page Confidentialité) ?>
