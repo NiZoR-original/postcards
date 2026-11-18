@@ -30,6 +30,7 @@
     debut = null;
     balaye = false;
     montrer(groupe.indexOf(a));
+    box.hidden = false;
     box.showModal();
   });
   box.addEventListener('click', e => {
@@ -38,6 +39,8 @@
     if (bouton) montrer(idx + Number(bouton.dataset.photoPas));
   });
   box.addEventListener('close', () => {
+    if (box.open) return;
+    box.hidden = true;
     img.removeAttribute('src');
     ouverture?.focus({ preventScroll: true });
   });

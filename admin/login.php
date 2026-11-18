@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="robots" content="noindex">
     <title>Connexion · Admin cartes postales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="../assets/admin.css">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/style.css', '../')) ?>">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/admin.css', '../')) ?>">
     <link rel="icon" href="../assets/icones/atlas-192.png" type="image/png">
 </head>
 <body class="login-page admin-login">
