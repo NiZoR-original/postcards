@@ -48,5 +48,6 @@ jobs:
             CLAUDE.md
             README.md
             db_config.php
+            install_key.php
             uploads/full/*.jpg
             uploads/thumbs/*.jpg

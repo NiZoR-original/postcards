@@ -5,8 +5,9 @@
 require_once __DIR__ . '/../config.php';
 
 http_response_code(204);
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || est_admin()) {
-    exit; // les visites de l'administrateur ne sont pas comptées
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || est_admin()
+    || ($_SERVER['HTTP_SEC_GPC'] ?? '') === '1' || ($_SERVER['HTTP_DNT'] ?? '') === '1') {
+    exit;
 }
 $jeton = (string) ($_POST['v'] ?? '');
 if (!preg_match('/^[a-f0-9]{32}$/', $jeton)) {
@@ -19,14 +20,14 @@ if ($pages === 0 && $duree === 0) {
 }
 
 try {
-    db()->prepare('INSERT INTO visites (jeton, debut, fin, duree, pages, pays) VALUES (?, NOW(), NOW(), ?, ?, ?)
+    $pdo = db();
+    purger_visites($pdo);
+    $pdo->prepare('INSERT INTO visites (jeton, debut, fin, duree, pages, pays) VALUES (?, NOW(), NOW(), ?, ?, ?)
                    ON DUPLICATE KEY UPDATE fin = NOW(), duree = LEAST(duree + VALUES(duree), 86400), pages = LEAST(pages + VALUES(pages), 10000)')
         ->execute([$jeton, $duree, $pages, pays_du_fuseau((string) ($_POST['tz'] ?? ''))]);
 
-    // Purge des visites de plus de 25 mois, de temps en temps
-    if (random_int(1, 200) === 1) {
-        db()->exec('DELETE FROM visites WHERE debut < NOW() - INTERVAL 25 MONTH');
+} catch (PDOException $e) {
+    if ((int) ($e->errorInfo[1] ?? 0) !== 1146) {
+        error_log('Statistiques Postcards : ' . $e->getMessage());
     }
-} catch (PDOException) {
-    // table absente tant que la migration 0004 n'est pas appliquée : on ignore
 }

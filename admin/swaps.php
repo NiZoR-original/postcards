@@ -14,9 +14,9 @@ $libelles = ['disponible' => 'Disponible', 'reservee' => 'Réservée', 'echangee
 entete_admin('swaps', 'Swaps');
 ?>
 <h1>Swaps</h1>
-<p>
+<p class="liens-swaps-admin">
     <a class="bouton" href="swap.php"><i class="fa-solid fa-plus"></i> Nouvelle carte à échanger</a>
-    <a href="../swaps.php" target="_blank">Page publique à partager sur Discord</a>
+    <a href="../swaps.php">Page publique à partager sur Discord</a>
 </p>
 <nav class="onglets">
     <a href="swaps.php" class="<?= $etat === '' ? 'actif' : '' ?>">Toutes</a>
@@ -24,17 +24,17 @@ entete_admin('swaps', 'Swaps');
         <a href="?etat=<?= $k ?>" class="<?= $etat === $k ? 'actif' : '' ?>"><?= h($l) ?></a>
     <?php endforeach; ?>
 </nav>
-<table class="table-cartes">
+<table class="table-cartes table-inventaire" aria-label="Cartes à échanger">
     <thead><tr><th></th><th>#</th><th>Titre</th><th>Thème</th><th>État</th><th>Réservée pour</th></tr></thead>
     <tbody>
     <?php foreach ($swaps as $s): ?>
         <tr class="etat-<?= h($s['etat']) ?>">
             <td class="mini"><?php if ($s['photo']): ?><img src="<?= h(url_photo((int) $s['photo'], 'thumb', '../')) ?>" alt="" loading="lazy"><?php endif; ?></td>
-            <td><?= (int) $s['id'] ?></td>
-            <td><a href="swap.php?id=<?= (int) $s['id'] ?>"><strong><?= h($s['titre']) ?></strong></a></td>
-            <td><?= h($s['theme']) ?></td>
-            <td><span class="pastille <?= h($s['etat']) ?>"><?= h($libelles[$s['etat']]) ?></span></td>
-            <td><?= h($s['reserve_pour']) ?></td>
+            <td data-libelle="Numéro"><?= (int) $s['id'] ?></td>
+            <td class="cellule-principale"><a href="swap.php?id=<?= (int) $s['id'] ?>"><strong><?= h($s['titre']) ?></strong></a></td>
+            <td data-libelle="Thème"><?= h($s['theme']) ?></td>
+            <td data-libelle="État"><span class="pastille <?= h($s['etat']) ?>"><?= h($libelles[$s['etat']]) ?></span></td>
+            <td data-libelle="Réservée pour"><?= h($s['reserve_pour']) ?></td>
         </tr>
     <?php endforeach; ?>
     <?php if (!$swaps): ?><tr><td colspan="6" class="vide">Aucune carte.</td></tr><?php endif; ?>

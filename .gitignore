@@ -1,4 +1,13 @@
 db_config.php
+/install_key.php
+/pc_config_*.php
+/work/atlas-postal.html
+/work/atlas-postal-*.png
+/work/france-outre-mer.png
+/work/atlas-postal-mobile*.png
+/work/admin-mobile-*.png
+/work/en-route-mobile.png
+/work/formulaire-carte-desktop.png
 /uploads/full/*
 /uploads/thumbs/*
 !/uploads/*/.gitkeep

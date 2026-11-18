@@ -3,6 +3,7 @@
 // Visible publiquement si la photo est publique ET son parent aussi
 // (carte publique, ou swap non échangé). Sinon réservé à l'admin connecté.
 require_once __DIR__ . '/config.php';
+header('Cache-Control: private, no-store');
 
 $id = (int) ($_GET['id'] ?? 0);
 $taille = ($_GET['s'] ?? '') === 'full' ? 'full' : 'thumbs';
@@ -33,7 +34,9 @@ header('Content-Type: image/jpeg');
 header('X-Content-Type-Options: nosniff');
 header('ETag: ' . $etag);
 // Les fichiers sont immuables (nom aléatoire) ; seul le droit d'accès peut changer.
-header($public ? 'Cache-Control: public, max-age=86400' : 'Cache-Control: private, no-store');
+if ($public) {
+    header('Cache-Control: public, no-cache');
+}
 if (($_SERVER['HTTP_IF_NONE_MATCH'] ?? '') === $etag && $public) {
     http_response_code(304);
     exit;

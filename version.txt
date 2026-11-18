@@ -1,3 +1,18 @@
+0.1.0.1 du 18/11/2026
+* UPDATE : Hong Kong et Macao affichés sous leur nom court. Le préfixe des références Postcrossing et Cardzilla renseigne l’origine des cartes reçues, et le suffixe Cardzilla renseigne la destination des cartes envoyées.
+* UPDATE : Références Postcrossing et Cardzilla saisies dans des cases distinctes pour chaque groupe de lettres ou de chiffres.
+* UPDATE : Choix explicite de la plateforme pour une nouvelle carte, références masquées à la saisie avec 1 à 9 chiffres et alignement du formulaire sur ordinateur.
+* NEW : Formulaire des cartes avec liens Postcrossing et Cardzilla déduits de la référence, mots clés et calcul de distance à vol d’oiseau depuis l’adresse personnelle configurée.
+* NEW : Galerie publique « En route » pour les cartes expédiées sans date de réception. Saisie de l’arrivée depuis la fiche pour l’administrateur et bascule dans « Envoyées ».
+* UPDATE : Administration mobile avec navigation en bas, inventaires en fiches, commandes d’enregistrement à portée de pouce et prise de photo depuis les formulaires.
+* NEW : Interface mobile Atlas postal avec navigation fixe en bas, options repliées et galerie tactile. Installation sur l’écran d’accueil via un manifeste et un écran hors connexion.
+* NEW : Carte de France et de l’outre-mer avec les départements métropolitains, les DROM, les COM et la Nouvelle-Calédonie. Saisie du département pour les cartes françaises dans l’administration.
+* UPDATE : Interface publique Atlas postal, palette bleu nuit et cuivre en thème sombre et sable en thème clair, carte et résultats côte à côte sur grand écran avec sélecteur de pays ou région.
+* UPDATE : Installation web protégée par une clé et connexion admin limitée côté serveur entre sessions.
+* BUGFIX : Statistiques de visite arrêtées dès l’opposition et purge des données anciennes à chaque collecte ou consultation des statistiques.
+* BUGFIX : Les photos publiques sont revalidées avant réutilisation du cache pour prendre en compte les changements de visibilité.
+* BUGFIX : Sur la carte, le panneau conserve le dernier pays ou filtre sélectionné, quel que soit l’ordre des réponses.
+
 0.1.0.0 du 17/11/2026
 * UPDATE : Pied de page public - lien « Connexion » vers l'administration après « Confidentialité et mentions légales » (« Administration » une fois connecté)
 * NEW : Statistiques de visite anonymes (migration 0004) - pays (déduit du fuseau horaire du navigateur, jamais de l'adresse IP), date, pages vues et temps passé page visible ; ni cookie ni IP, visites de l'admin non comptées, Global Privacy Control / Do Not Track respectés, opposition possible depuis la page Confidentialité, purge après 25 mois ; page Admin > Statistiques (visites par jour ou par mois, durée médiane et moyenne, répartition par pays et par durée)
