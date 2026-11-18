@@ -33,8 +33,8 @@ function entete_admin(string $actif, string $titre): void
     <meta name="robots" content="noindex">
     <title><?= h($titre) ?> · Admin cartes postales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="../assets/admin.css">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/style.css', '../')) ?>">
+    <link rel="stylesheet" href="<?= h(url_asset('assets/admin.css', '../')) ?>">
     <link rel="icon" href="../assets/icones/atlas-192.png" type="image/png">
 </head>
 <body class="admin">
@@ -80,7 +80,7 @@ function pied_admin(): void
     ?>
 </main>
 <?php fenetre_photos('Photos', 'Fermer', 'Photo précédente', 'Photo suivante'); ?>
-<script src="../assets/lightbox.js"></script>
+<script src="<?= h(url_asset('assets/lightbox.js', '../')) ?>"></script>
 <script src="../assets/theme.js"></script>
 <script src="../assets/admin.js"></script>
 </body>

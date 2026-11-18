@@ -129,10 +129,16 @@ function url_photo(int $id, string $taille = 'thumb', string $base = ''): string
     return $base . 'photo.php?v=2&id=' . $id . ($taille === 'full' ? '&s=full' : '');
 }
 
+function url_asset(string $chemin, string $base = ''): string
+{
+    $version = filemtime(dirname(__DIR__) . '/' . $chemin);
+    return $base . $chemin . '?v=' . $version;
+}
+
 function fenetre_photos(string $titre, string $fermer, string $precedente, string $suivante): void
 {
     ?>
-<dialog id="lightbox" class="lightbox" aria-label="<?= h($titre) ?>">
+<dialog id="lightbox" class="lightbox" aria-label="<?= h($titre) ?>" hidden>
     <img alt="">
     <button type="button" class="lightbox-fermer" aria-label="<?= h($fermer) ?>" autofocus>&times;</button>
     <div class="lightbox-commandes" hidden>

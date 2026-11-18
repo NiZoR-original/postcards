@@ -1,4 +1,5 @@
 0.1.0.1 du 18/11/2026
+* BUGFIX : La galerie photo fermée reste invisible sur le site public et dans l’administration, même avec une ancienne feuille de style en cache.
 * UPDATE : Hong Kong et Macao affichés sous leur nom court. Le préfixe des références Postcrossing et Cardzilla renseigne l’origine des cartes reçues, et le suffixe Cardzilla renseigne la destination des cartes envoyées.
 * UPDATE : Références Postcrossing et Cardzilla saisies dans des cases distinctes pour chaque groupe de lettres ou de chiffres.
 * UPDATE : Choix explicite de la plateforme pour une nouvelle carte, références masquées à la saisie avec 1 à 9 chiffres et alignement du formulaire sur ordinateur.
