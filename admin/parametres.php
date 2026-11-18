@@ -2,6 +2,7 @@
 // Paramètres du site : profils Postcrossing / Cardzilla / Discord affichés dans la barre de menu publique,
 // pseudo Discord affiché sur la page des swaps.
 require_once __DIR__ . '/../includes/admin.php';
+require_once __DIR__ . '/../includes/adresse.php';
 
 const PARAMETRES = [
     'profil_postcrossing' => ['Nom d\'utilisateur Postcrossing', 'https://www.postcrossing.com/user/'],
@@ -22,6 +23,24 @@ if ($table_ok && $_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verifier();
     $erreurs = [];
     $st = db()->prepare('INSERT INTO parametres (cle, valeur) VALUES (?, ?) ON DUPLICATE KEY UPDATE valeur = VALUES(valeur)');
+    if (($_POST['section'] ?? '') === 'adresse') {
+        $paysAdresse = champ('adresse_pays', 2);
+        if ($paysAdresse === null || !pays_valide($paysAdresse)) {
+            flash('Choisis le pays de ton adresse.', 'erreur');
+        } else {
+            $adresse = ['pays' => $paysAdresse];
+            $format = format_adresse($paysAdresse);
+            foreach (CHAMPS_ADRESSE as $cle => [$type, , , $max]) {
+                if (str_contains($format['ordre'], $type)) {
+                    $adresse[$cle] = champ('adresse_' . $cle, $max);
+                }
+            }
+            $st->execute(['adresse_personnelle', json_encode($adresse, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)]);
+            flash('Adresse enregistrée.');
+        }
+        rediriger('parametres.php#adresse');
+    }
+
     foreach (PARAMETRES as $cle => [$libelle]) {
         // Adresse de contact : e-mail, aucune autre transformation
         if ($cle === 'email_contact') {
@@ -93,5 +112,51 @@ entete_admin('parametres', 'Paramètres');
         <button type="submit" class="bouton"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
     </div>
 </form>
+<?php
+$adresse = adresse_personnelle();
+$format = format_adresse($adresse['pays']);
+$champs = CHAMPS_ADRESSE;
+$ordre = array_flip(str_split($format['ordre']));
+uasort($champs, fn($a, $b) => ($ordre[$a[0]] ?? PHP_INT_MAX) <=> ($ordre[$b[0]] ?? PHP_INT_MAX));
+$paysAdresse = liste_pays();
+$formats = [];
+foreach ($paysAdresse as $code => $nom) {
+    $gabarit = format_adresse($code);
+    $formats[$code] = ['ordre' => $gabarit['ordre'], 'libelles' => []];
+    foreach (CHAMPS_ADRESSE as $cle => [, $libelle]) {
+        $libelleLocal = libelle_champ_adresse($cle, $gabarit);
+        if ($libelle !== $libelleLocal) {
+            $formats[$code]['libelles'][$cle] = $libelleLocal;
+        }
+    }
+}
+?>
+<section id="adresse" class="section-adresse">
+    <h2>Mon adresse</h2>
+    <p class="aide">Adresse privée. Le calcul utilise seulement le pays, le code postal et la ville.</p>
+    <form method="post" class="formulaire" data-formats-adresse="<?= h(json_encode($formats, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)) ?>">
+        <?= csrf_field() ?>
+        <input type="hidden" name="section" value="adresse">
+        <div class="grille-form adresse-grille">
+            <label class="large">Pays
+                <select name="adresse_pays" autocomplete="country" required>
+                    <?php foreach ($paysAdresse as $code => $nom): ?>
+                        <option value="<?= h($code) ?>" <?= $adresse['pays'] === $code ? 'selected' : '' ?>><?= h($nom) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <?php foreach ($champs as $cle => [$type, $libelle, $auto, $max]): $visible = isset($ordre[$type]); ?>
+                <label data-adresse-champ="<?= h($type) ?>" data-adresse-cle="<?= h($cle) ?>" data-libelle="<?= h($libelle) ?>"
+                        <?= $type === 'A' ? 'class="large"' : '' ?><?= $visible ? '' : ' hidden' ?>>
+                    <span><?= h(libelle_champ_adresse($cle, $format)) ?></span>
+                    <input name="adresse_<?= h($cle) ?>" value="<?= h($adresse[$cle] ?? '') ?>" maxlength="<?= $max ?>"
+                        autocomplete="<?= h($auto) ?>"<?= $visible ? '' : ' disabled' ?>>
+                </label>
+            <?php endforeach; ?>
+        </div>
+        <div class="actions"><button class="bouton" type="submit">Enregistrer mon adresse</button></div>
+    </form>
+</section>
+<script src="../assets/parametres-adresse.js"></script>
 <?php endif; ?>
 <?php pied_admin(); ?>

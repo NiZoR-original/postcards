@@ -13,31 +13,56 @@ $_SESSION['pc_last'] = time();
 function entete_admin(string $actif, string $titre): void
 {
     $f = flash();
+    $principal = [
+        'cartes' => ['index.php', 'fa-envelope', 'Cartes', 'Cartes'],
+        'nouvelle' => ['carte.php', 'fa-plus', 'Nouvelle carte', 'Ajouter'],
+        'swaps' => ['swaps.php', 'fa-right-left', 'Swaps', 'Swaps'],
+    ];
+    $secondaire = [
+        'statistiques' => ['statistiques.php', 'fa-chart-column', 'Statistiques'],
+        'parametres' => ['parametres.php', 'fa-gear', 'Paramètres'],
+        'migrations' => ['migrations.php', 'fa-database', 'Migrations'],
+    ];
     ?>
 <!DOCTYPE html>
 <html lang="fr"<?= attr_theme() ?>>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#151b28">
     <meta name="robots" content="noindex">
     <title><?= h($titre) ?> · Admin cartes postales</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/admin.css">
+    <link rel="icon" href="../assets/icones/atlas-192.png" type="image/png">
 </head>
 <body class="admin">
 <header class="topbar">
-    <a class="brand" href="index.php"><i class="fa-solid fa-lock"></i> Admin</a>
-    <nav>
-        <a href="index.php" class="<?= $actif === 'cartes' ? 'actif' : '' ?>"><i class="fa-solid fa-envelope"></i> Cartes</a>
-        <a href="carte.php" class="<?= $actif === 'nouvelle' ? 'actif' : '' ?>"><i class="fa-solid fa-plus"></i> Nouvelle carte</a>
-        <a href="swaps.php" class="<?= $actif === 'swaps' ? 'actif' : '' ?>"><i class="fa-solid fa-right-left"></i> Swaps</a>
-        <a href="statistiques.php" class="<?= $actif === 'statistiques' ? 'actif' : '' ?>"><i class="fa-solid fa-chart-column"></i> Statistiques</a>
-        <a href="parametres.php" class="<?= $actif === 'parametres' ? 'actif' : '' ?>"><i class="fa-solid fa-gear"></i> Paramètres</a>
-        <a href="migrations.php" class="<?= $actif === 'migrations' ? 'actif' : '' ?>"><i class="fa-solid fa-database"></i> Migrations</a>
-        <a href="../index.php" target="_blank"><i class="fa-solid fa-earth-europe"></i> Site public</a>
+    <a class="brand" href="index.php"><i class="fa-solid fa-lock" aria-hidden="true"></i> Administration</a>
+    <a class="site-public-admin" href="../index.php"><i class="fa-solid fa-earth-europe" aria-hidden="true"></i> Site public</a>
+    <nav class="nav-admin" aria-label="Navigation de l’administration">
+        <?php foreach ($principal as $cle => [$url, $icone, $libelle, $court]): ?>
+        <a href="<?= h($url) ?>" aria-label="<?= h($libelle) ?>"<?= $actif === $cle ? ' class="actif" aria-current="true"' : '' ?>>
+            <i class="fa-solid <?= h($icone) ?>" aria-hidden="true"></i>
+            <span class="nav-admin-long"><?= h($libelle) ?></span><span class="nav-admin-court"><?= h($court) ?></span>
+        </a>
+        <?php endforeach; ?>
+        <button type="button" class="plus-admin<?= isset($secondaire[$actif]) ? ' actif' : '' ?>" aria-expanded="false" aria-controls="options-admin">
+            <i class="fa-solid fa-ellipsis" aria-hidden="true"></i> <span>Plus</span>
+        </button>
     </nav>
-    <?= selecteur_theme(['groupe' => 'Thème', 'auto' => 'Thème par défaut (celui du système)', 'light' => 'Mode clair', 'dark' => 'Mode sombre']) ?>
-    <a href="logout.php" class="deconnexion"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</a>
+    <div class="options-admin" id="options-admin">
+        <nav aria-label="Autres fonctions de l’administration">
+            <?php foreach ($secondaire as $cle => [$url, $icone, $libelle]): ?>
+            <a href="<?= h($url) ?>"<?= $actif === $cle ? ' class="actif" aria-current="page"' : '' ?>>
+                <i class="fa-solid <?= h($icone) ?>" aria-hidden="true"></i> <?= h($libelle) ?>
+            </a>
+            <?php endforeach; ?>
+        </nav>
+        <?= selecteur_theme(['groupe' => 'Thème', 'auto' => 'Thème par défaut (celui du système)', 'light' => 'Mode clair', 'dark' => 'Mode sombre']) ?>
+        <a href="logout.php" class="deconnexion"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Déconnexion</a>
+    </div>
 </header>
 <main class="contenu">
     <?php if ($attente = migrations_en_attente(db())): ?>
@@ -54,9 +79,10 @@ function pied_admin(): void
 {
     ?>
 </main>
-<div id="lightbox" class="lightbox" hidden><img alt=""><button type="button" aria-label="Fermer">&times;</button></div>
+<?php fenetre_photos('Photos', 'Fermer', 'Photo précédente', 'Photo suivante'); ?>
 <script src="../assets/lightbox.js"></script>
 <script src="../assets/theme.js"></script>
+<script src="../assets/admin.js"></script>
 </body>
 </html>
     <?php
@@ -87,6 +113,9 @@ function bloc_photos(array $photos, bool $publique_par_defaut = true): void
         <div class="ajout-photos">
             <label>Ajouter des photos (JPEG, PNG, WebP — plusieurs possibles)
                 <input type="file" name="nouvelles_photos[]" accept="image/jpeg,image/png,image/webp" multiple>
+            </label>
+            <label class="photo-appareil">Prendre une photo
+                <input type="file" name="photos_appareil[]" accept="image/jpeg" capture="environment">
             </label>
             <label><input type="checkbox" name="nouvelles_publiques" value="1" <?= $publique_par_defaut ? 'checked' : '' ?>> Nouvelles photos publiques</label>
         </div>
@@ -122,7 +151,8 @@ function traiter_bloc_photos(string $type, int $id): array
         $maj->execute([$legende !== '' ? $legende : null, !empty($v['publique']) ? 1 : 0, (int) ($v['ordre'] ?? 0), $pid, $id]);
     }
 
-    return enregistrer_photos($type, $id, fichiers_envoyes('nouvelles_photos'), !empty($_POST['nouvelles_publiques']));
+    $fichiers = array_merge(fichiers_envoyes('nouvelles_photos'), fichiers_envoyes('photos_appareil'));
+    return enregistrer_photos($type, $id, $fichiers, !empty($_POST['nouvelles_publiques']));
 }
 
 /** Chaîne nettoyée ou null si vide. */

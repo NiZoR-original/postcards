@@ -1,5 +1,21 @@
 <?php
 
+const CARTE_EN_ROUTE_SQL = "sens = 'envoyee' AND date_reception IS NULL";
+
+function carte_en_route(array $carte): bool
+{
+    return $carte['sens'] === 'envoyee' && $carte['date_reception'] === null;
+}
+
+function date_iso(mixed $valeur): ?string
+{
+    if (!is_string($valeur) || !preg_match('/\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/', $valeur)) {
+        return null;
+    }
+    [$annee, $mois, $jour] = array_map('intval', explode('-', $valeur));
+    return $annee >= 1000 && checkdate($mois, $jour, $annee) ? $valeur : null;
+}
+
 function h(?string $s): string
 {
     return htmlspecialchars($s ?? '', ENT_QUOTES, 'UTF-8');
@@ -26,7 +42,9 @@ function csrf_field(): string
 
 function csrf_verifier(): void
 {
-    if (!hash_equals($_SESSION['csrf'] ?? '', $_POST['csrf'] ?? '')) {
+    $attendu = $_SESSION['csrf'] ?? null;
+    $recu = $_POST['csrf'] ?? null;
+    if (!is_string($attendu) || !is_string($recu) || !hash_equals($attendu, $recu)) {
         http_response_code(400);
         exit('Jeton CSRF invalide — rechargez la page.');
     }
@@ -49,16 +67,25 @@ function rediriger(string $url): never
     exit;
 }
 
+const URL_CARTES_PLATEFORMES = [
+    'postcrossing' => 'https://www.postcrossing.com/postcards/',
+    'cardzilla' => 'https://cardzilla.eu/postcards/',
+];
+
+function lien_deduit(string $plateforme, ?string $reference): ?string
+{
+    return isset(URL_CARTES_PLATEFORMES[$plateforme]) && $reference !== null && $reference !== ''
+        ? URL_CARTES_PLATEFORMES[$plateforme] . rawurlencode($reference)
+        : null;
+}
+
 /** Lien vers la carte sur sa plateforme : lien explicite, sinon déduit de la référence. */
 function lien_plateforme(array $carte): ?string
 {
     if (!empty($carte['lien'])) {
         return $carte['lien'];
     }
-    if ($carte['plateforme'] === 'postcrossing' && !empty($carte['reference'])) {
-        return 'https://www.postcrossing.com/postcards/' . rawurlencode($carte['reference']);
-    }
-    return null;
+    return lien_deduit($carte['plateforme'], $carte['reference'] ?? null);
 }
 
 function libelle_plateforme(string $p): string
@@ -99,7 +126,22 @@ function photos_de(string $type, int $id, bool $publiques_seulement): array
 
 function url_photo(int $id, string $taille = 'thumb', string $base = ''): string
 {
-    return $base . 'photo.php?id=' . $id . ($taille === 'full' ? '&s=full' : '');
+    return $base . 'photo.php?v=2&id=' . $id . ($taille === 'full' ? '&s=full' : '');
+}
+
+function fenetre_photos(string $titre, string $fermer, string $precedente, string $suivante): void
+{
+    ?>
+<dialog id="lightbox" class="lightbox" aria-label="<?= h($titre) ?>">
+    <img alt="">
+    <button type="button" class="lightbox-fermer" aria-label="<?= h($fermer) ?>" autofocus>&times;</button>
+    <div class="lightbox-commandes" hidden>
+        <button type="button" data-photo-pas="-1" aria-label="<?= h($precedente) ?>">‹</button>
+        <span aria-live="polite"></span>
+        <button type="button" data-photo-pas="1" aria-label="<?= h($suivante) ?>">›</button>
+    </div>
+</dialog>
+    <?php
 }
 
 /** Thème choisi par le visiteur : 'light', 'dark' ou 'auto' (suit le système). Cookie posé par assets/theme.js. */
@@ -195,4 +237,9 @@ function pays_du_fuseau(string $tz): ?string
         return null;
     }
     return pays_valide($code) ? $code : null;
+}
+
+function purger_visites(PDO $pdo): void
+{
+    $pdo->exec('DELETE FROM visites WHERE debut < NOW() - INTERVAL 25 MONTH');
 }

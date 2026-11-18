@@ -1,0 +1,259 @@
+/* Mise en page de l’interface publique. */
+body.public {
+  --eau: light-dark(#c7b7a5, #293648);
+}
+.public .topbar {
+  border-bottom: 1px solid var(--bord);
+  padding: .65rem clamp(.75rem, 2.5vw, 2rem);
+  gap: .35rem 1rem;
+}
+.public .topbar nav { flex: 1 0 auto; }
+.public .profils { flex-wrap: wrap; }
+.public .options-publiques { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem 1rem; }
+.public :is(.menu-mobile, .nav-court) { display: none; }
+.public .topbar nav a.actif { background: var(--primaire); color: var(--primaire-texte); }
+.public .contenu { max-width: 1440px; padding: 1.75rem clamp(.75rem, 3vw, 2.5rem) 3rem; }
+.public .pied-site { max-width: 1440px; }
+.public h1, .public h2 {
+  font-family: Georgia, "Palatino Linotype", serif;
+  font-weight: 500;
+  line-height: 1.15;
+}
+.public h1 { font-size: clamp(2rem, 4vw, 3.1rem); letter-spacing: -.035em; }
+.public h2 { font-size: clamp(1.35rem, 2.3vw, 1.75rem); }
+.public .confidentialite { overflow-wrap: anywhere; }
+.public .confidentialite :is(th, td) { padding-inline: clamp(.2rem, 1vw, .6rem); }
+
+.atlas-entete {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  margin: .65rem 0 1.4rem;
+}
+.atlas-entete h1 { font-size: clamp(2.8rem, 7vw, 5.2rem); letter-spacing: -.06em; margin: 0; }
+.atlas-zone {
+  color: var(--primaire);
+  font-size: .81rem;
+  font-weight: 700;
+  letter-spacing: .085em;
+  text-transform: uppercase;
+  margin: 0 0 .25rem;
+}
+.atlas-entete .stats { font-size: .85rem; margin: 0; gap: .35rem 1rem; }
+.atlas-entete .stats span { background: none; box-shadow: none; padding: .2rem 0; color: var(--discret); }
+.public .carte-layout {
+  grid-template-columns: minmax(0, 2.1fr) minmax(16rem, 1fr);
+  align-items: stretch;
+}
+.public .carte-monde, .atlas-cartes {
+  background: var(--surface);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  min-width: 0;
+}
+.public .carte-monde { padding: 0; align-self: start; }
+.public .mode-switch { display: flex; margin: 0; padding: .7rem; }
+.public .mode-switch button, .public .filtres button { min-height: 2.5rem; }
+.public #map {
+  background: var(--eau);
+  aspect-ratio: 16 / 9;
+  height: auto;
+  min-height: 260px;
+}
+.public #map[data-fond="usa_canada"] { aspect-ratio: 1130 / 745; }
+.public #map[data-fond="france"] { aspect-ratio: 1080 / 704; }
+#map[data-fond="france"] .pc-liseres path { stroke-width: 1.75px; }
+#map[data-fond="france"] .pc-traits path { stroke-width: .75px; }
+#map[data-fond="france"] .jvm-region[data-code^="_"] { pointer-events: all; cursor: pointer; }
+#map[data-fond="france"] .jvm-region[data-code^="_"]:hover { stroke-opacity: 1; }
+.pc-nom-encart {
+  fill: var(--texte);
+  font-size: 15px;
+  font-weight: 650;
+  pointer-events: none;
+}
+.public .pied-carte { padding: .45rem .6rem; }
+.public .jvm-zoom-btn {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border-radius: 7px;
+  background: var(--primaire);
+  color: var(--primaire-texte);
+  font-size: 1rem;
+}
+.public .jvm-zoomout { top: 2.85rem; }
+.atlas-cartes { padding: 1rem; }
+.atlas-cartes label { display: block; font-size: .85rem; color: var(--discret); }
+.atlas-cartes select { display: block; width: 100%; margin: .3rem 0 .85rem; min-height: 2.75rem; }
+.atlas-attente { font-size: .9rem; }
+.atlas-cartes .panneau { padding: 0; box-shadow: none; border-radius: 0; }
+.atlas-cartes .panneau.charge { opacity: 1; }
+.atlas-cartes .panneau-titre { align-items: center; }
+.atlas-cartes .panneau-titre h2 { margin: .3rem 0; }
+.atlas-cartes .panneau-titre button {
+  flex: 0 0 2.5rem;
+  min-height: 2.5rem;
+  border: 1px solid var(--bord);
+  border-radius: 50%;
+}
+.atlas-cartes .vignettes { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; margin-top: .8rem; }
+.atlas-cartes .vignette {
+  display: grid;
+  grid-template-columns: 4.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: .65rem;
+  padding: .45rem;
+  background: var(--fond);
+}
+.atlas-cartes .vignette img { border-radius: 4px; }
+.atlas-cartes .vignette .sans-photo {
+  background: var(--surface);
+  border-radius: 4px;
+  font-size: .7rem;
+  text-align: center;
+  gap: .15rem;
+}
+.atlas-cartes .vignette .sans-photo i { font-size: 1rem; }
+.atlas-cartes .vignette .meta { white-space: normal; overflow-wrap: anywhere; padding: 0; }
+.atlas-cartes .vignette .meta strong { display: block; font-size: .95rem; font-weight: 600; }
+.atlas-cartes .vignette:hover { border-color: var(--primaire); }
+.public .liste-pays ul { grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); }
+
+.grille-en-route {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 14.5rem), 1fr));
+  gap: .85rem;
+}
+.carte-en-route {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--texte);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  box-shadow: var(--ombre);
+  text-decoration: none;
+}
+.carte-en-route:hover { border-color: var(--primaire); }
+.visuel-en-route { aspect-ratio: 3 / 2; background: var(--fond); }
+.visuel-en-route img { width: 100%; height: 100%; object-fit: contain; }
+.infos-en-route { padding: .7rem .8rem .85rem; overflow-wrap: anywhere; }
+.public .infos-en-route h2 { margin: 0 0 .35rem; font: 650 1rem/1.25 system-ui, sans-serif; }
+.infos-en-route p { margin: .18rem 0 0; color: var(--discret); font-size: .85rem; }
+.reception-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .65rem;
+  align-items: end;
+  padding: .8rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+}
+.reception-form label { display: grid; gap: .3rem; font-size: .9rem; }
+.reception-form input { font-size: 1rem; }
+.reception-form :is(input, button) { min-height: 44px; }
+.reception-form .flash { flex: 1 0 100%; margin: 0; }
+
+@media (max-width: 760px), (max-height: 520px) and (pointer: coarse) {
+  html:has(body.public) { scroll-padding-bottom: calc(4.45rem + env(safe-area-inset-bottom, 0px)); }
+  body.public { --barre-bas: calc(4.45rem + env(safe-area-inset-bottom, 0px)); }
+  .public .topbar {
+    padding: calc(.35rem + env(safe-area-inset-top, 0px))
+      max(.75rem, env(safe-area-inset-right, 0px))
+      .35rem max(.75rem, env(safe-area-inset-left, 0px));
+    justify-content: space-between;
+    min-height: 3.5rem;
+  }
+  .public .topbar .brand { display: inline-flex; align-items: center; gap: .45rem; min-height: 44px; }
+  .public .menu-mobile {
+    align-items: center;
+    gap: .35rem;
+    min-height: 44px;
+    padding: .3rem .65rem;
+    color: var(--texte);
+    background: var(--fond);
+    border: 1px solid var(--bord);
+    border-radius: 999px;
+    font: inherit;
+    font-size: .85rem;
+  }
+  .public .topbar[data-menu] .menu-mobile { display: inline-flex; }
+  .public .topbar[data-menu="ferme"] .options-publiques { display: none; }
+  .public .options-publiques { width: 100%; padding-top: .35rem; border-top: 1px solid var(--bord); }
+  .public :is(.options-publiques a, .themes button) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    gap: .25rem;
+  }
+  .public .topbar .nav-publique {
+    position: fixed;
+    inset: auto 0 0;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    min-height: var(--barre-bas);
+    padding: .32rem max(.3rem, env(safe-area-inset-right, 0px))
+      calc(.32rem + env(safe-area-inset-bottom, 0px)) max(.3rem, env(safe-area-inset-left, 0px));
+    background: var(--surface);
+    border-top: 1px solid var(--bord);
+    box-shadow: 0 -4px 24px #10162628;
+  }
+  .public .nav-publique a {
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: .3rem;
+    padding: .25rem .15rem;
+    min-height: 44px;
+    font-size: clamp(.64rem, 2.9vw, .81rem);
+    line-height: 1.15;
+    text-align: center;
+    border-radius: 11px;
+  }
+  .public .nav-publique i { font-size: 1.05rem; }
+  .public .nav-publique .nav-long { display: none; }
+  .public .nav-publique .nav-court { display: inline; }
+  .public .contenu {
+    padding: .9rem max(.75rem, env(safe-area-inset-right, 0px))
+      1.6rem max(.75rem, env(safe-area-inset-left, 0px));
+  }
+  .public .pied-site { padding-bottom: calc(.75rem + var(--barre-bas)); }
+  .public .pied-site a { display: inline-flex; align-items: center; min-height: 44px; }
+  .public .bandeau-cookies { bottom: calc(var(--barre-bas) + .5rem); }
+  .atlas-entete { gap: .48rem; margin: .45rem 0 .85rem; }
+  .atlas-entete h1 { font-size: clamp(2.5rem, 11vw, 4rem); }
+  .atlas-entete .stats { gap: .1rem .7rem; font-size: .75rem; }
+  .public .carte-layout { grid-template-columns: minmax(0, 1fr); }
+  .public .mode-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .public .mode-switch button { padding-inline: .3rem; }
+  .public :is(.mode-switch button, .filtres button, .liste-pays button, .panneau-titre button) { min-height: 44px; }
+  .public #map { min-height: clamp(230px, 34svh, 360px); }
+  .public #map .jvm-zoom-btn { width: 44px; height: 44px; }
+  .public #map .jvm-zoomout { top: 62px; }
+  .public .atlas-cartes { padding: .8rem; }
+  .public .panneau { scroll-margin-bottom: calc(var(--barre-bas) + .5rem); }
+  .public .fiche .galerie { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .public .fiche .galerie > :first-child { grid-column: 1 / -1; }
+  .public .fiche .galerie img { width: 100%; }
+  .public .grille-swaps { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+  .public .swap-infos { padding: .55rem .65rem .75rem; overflow-wrap: anywhere; }
+  .public .swap-infos h3 { clear: both; padding-top: .2rem; }
+  .public .swap .etat { float: none; display: inline-block; }
+  .grille-en-route { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; }
+  .infos-en-route { padding: .55rem .6rem .7rem; }
+  .reception-form label { flex: 1 1 10rem; }
+  .reception-form button { flex: 1 1 auto; justify-content: center; }
+}
+@media (max-width: 350px) {
+  .public .grille-swaps { grid-template-columns: minmax(0, 1fr); }
+}

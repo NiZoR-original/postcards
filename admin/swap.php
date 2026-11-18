@@ -83,14 +83,16 @@ entete_admin('swaps', $id ? 'Swap #' . $id : 'Nouveau swap');
 
     <?php bloc_photos($photos); ?>
 
-    <div class="actions">
+    <div class="actions actions-edition">
         <button type="submit" class="bouton"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
         <button type="submit" name="et_nouvelle" value="1" class="bouton secondaire"><i class="fa-solid fa-plus"></i> Enregistrer et nouvelle</button>
-        <?php if ($id): ?>
-            <button type="submit" name="supprimer" value="1" class="bouton danger" formnovalidate
-                    onclick="return confirm('Supprimer définitivement ce swap et ses photos ?')"><i class="fa-solid fa-trash"></i> Supprimer</button>
-        <?php endif; ?>
     </div>
+    <?php if ($id): ?>
+    <div class="actions actions-fiche">
+        <button type="submit" name="supprimer" value="1" class="bouton danger" formnovalidate
+                onclick="return confirm('Supprimer définitivement ce swap et ses photos ?')"><i class="fa-solid fa-trash"></i> Supprimer</button>
+    </div>
+    <?php endif; ?>
 </form>
 <?php
 pied_admin();

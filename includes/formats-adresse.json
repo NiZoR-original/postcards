@@ -1,0 +1,832 @@
+{
+  "AC": {
+    "ordre": "NACZ"
+  },
+  "AD": {
+    "ordre": "NAZC"
+  },
+  "AE": {
+    "ordre": "NAS",
+    "region": "emirate"
+  },
+  "AF": {
+    "ordre": "NACZ"
+  },
+  "AG": {
+    "ordre": "NAC"
+  },
+  "AI": {
+    "ordre": "NACZ"
+  },
+  "AL": {
+    "ordre": "NAZC"
+  },
+  "AM": {
+    "ordre": "NAZCS"
+  },
+  "AO": {
+    "ordre": "NAC"
+  },
+  "AQ": {
+    "ordre": "NAC"
+  },
+  "AR": {
+    "ordre": "NAZCS"
+  },
+  "AS": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "AT": {
+    "ordre": "NAZC"
+  },
+  "AU": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "ville": "suburb"
+  },
+  "AW": {
+    "ordre": "NAC"
+  },
+  "AX": {
+    "ordre": "NAZC"
+  },
+  "AZ": {
+    "ordre": "NAZC"
+  },
+  "BA": {
+    "ordre": "NAZC"
+  },
+  "BB": {
+    "ordre": "NACSZ",
+    "region": "parish"
+  },
+  "BD": {
+    "ordre": "NACZ"
+  },
+  "BE": {
+    "ordre": "NAZC"
+  },
+  "BF": {
+    "ordre": "NAC"
+  },
+  "BG": {
+    "ordre": "NAZC"
+  },
+  "BH": {
+    "ordre": "NACZ"
+  },
+  "BI": {
+    "ordre": "NAC"
+  },
+  "BJ": {
+    "ordre": "NAC"
+  },
+  "BL": {
+    "ordre": "NAZC"
+  },
+  "BM": {
+    "ordre": "NACZ"
+  },
+  "BN": {
+    "ordre": "NACZ"
+  },
+  "BO": {
+    "ordre": "NAC"
+  },
+  "BQ": {
+    "ordre": "NAC"
+  },
+  "BR": {
+    "ordre": "NADCSZ",
+    "region": "state",
+    "quartier": "neighborhood"
+  },
+  "BS": {
+    "ordre": "NACS",
+    "region": "island"
+  },
+  "BT": {
+    "ordre": "NACZ"
+  },
+  "BV": {
+    "ordre": "NAC"
+  },
+  "BW": {
+    "ordre": "NAC"
+  },
+  "BY": {
+    "ordre": "NAZCS"
+  },
+  "BZ": {
+    "ordre": "NAC"
+  },
+  "CA": {
+    "ordre": "NACSZ"
+  },
+  "CC": {
+    "ordre": "NACSZ"
+  },
+  "CD": {
+    "ordre": "NAC"
+  },
+  "CF": {
+    "ordre": "NAC"
+  },
+  "CG": {
+    "ordre": "NAC"
+  },
+  "CH": {
+    "ordre": "NAZC"
+  },
+  "CI": {
+    "ordre": "NAC"
+  },
+  "CK": {
+    "ordre": "NAC"
+  },
+  "CL": {
+    "ordre": "NAZCS"
+  },
+  "CM": {
+    "ordre": "NAC"
+  },
+  "CN": {
+    "ordre": "NADCSZ",
+    "quartier": "district"
+  },
+  "CO": {
+    "ordre": "NADCSZ",
+    "region": "department"
+  },
+  "CR": {
+    "ordre": "NASCZ"
+  },
+  "CU": {
+    "ordre": "NACSZ"
+  },
+  "CV": {
+    "ordre": "NAZCS",
+    "region": "island"
+  },
+  "CW": {
+    "ordre": "NAC"
+  },
+  "CX": {
+    "ordre": "NACSZ"
+  },
+  "CY": {
+    "ordre": "NAZC"
+  },
+  "CZ": {
+    "ordre": "NAZC"
+  },
+  "DE": {
+    "ordre": "NAZC"
+  },
+  "DJ": {
+    "ordre": "NAC"
+  },
+  "DK": {
+    "ordre": "NAZC"
+  },
+  "DM": {
+    "ordre": "NAC"
+  },
+  "DO": {
+    "ordre": "NAZC"
+  },
+  "DZ": {
+    "ordre": "NAZC"
+  },
+  "EC": {
+    "ordre": "NAZC"
+  },
+  "EE": {
+    "ordre": "NAZCS"
+  },
+  "EG": {
+    "ordre": "NACSZ"
+  },
+  "EH": {
+    "ordre": "NAZC"
+  },
+  "ER": {
+    "ordre": "NAC"
+  },
+  "ES": {
+    "ordre": "NAZCS"
+  },
+  "ET": {
+    "ordre": "NAZC"
+  },
+  "FI": {
+    "ordre": "NAZC"
+  },
+  "FJ": {
+    "ordre": "NAC"
+  },
+  "FK": {
+    "ordre": "NACZ"
+  },
+  "FM": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "FO": {
+    "ordre": "NAZC"
+  },
+  "FR": {
+    "ordre": "NAZC"
+  },
+  "GA": {
+    "ordre": "NAC"
+  },
+  "GB": {
+    "ordre": "NACZ",
+    "ville": "post_town"
+  },
+  "GD": {
+    "ordre": "NAC"
+  },
+  "GE": {
+    "ordre": "NAZC"
+  },
+  "GF": {
+    "ordre": "NAZC"
+  },
+  "GG": {
+    "ordre": "NACZ"
+  },
+  "GH": {
+    "ordre": "NAC"
+  },
+  "GI": {
+    "ordre": "NAZ"
+  },
+  "GL": {
+    "ordre": "NAZC"
+  },
+  "GM": {
+    "ordre": "NAC"
+  },
+  "GN": {
+    "ordre": "NZAC"
+  },
+  "GP": {
+    "ordre": "NAZC"
+  },
+  "GQ": {
+    "ordre": "NAC"
+  },
+  "GR": {
+    "ordre": "NAZC"
+  },
+  "GS": {
+    "ordre": "NACZ"
+  },
+  "GT": {
+    "ordre": "NAZC"
+  },
+  "GU": {
+    "ordre": "NACZ",
+    "postal": "zip"
+  },
+  "GW": {
+    "ordre": "NAZC"
+  },
+  "GY": {
+    "ordre": "NAC"
+  },
+  "HK": {
+    "ordre": "NACS",
+    "region": "area",
+    "ville": "district"
+  },
+  "HM": {
+    "ordre": "NACSZ"
+  },
+  "HN": {
+    "ordre": "NACSZ",
+    "region": "department"
+  },
+  "HR": {
+    "ordre": "NAZC"
+  },
+  "HT": {
+    "ordre": "NAZC"
+  },
+  "HU": {
+    "ordre": "NCAZ"
+  },
+  "ID": {
+    "ordre": "NACSZ"
+  },
+  "IE": {
+    "ordre": "NADCSZ",
+    "region": "county",
+    "postal": "eircode",
+    "quartier": "townland"
+  },
+  "IL": {
+    "ordre": "NACZ"
+  },
+  "IM": {
+    "ordre": "NACZ"
+  },
+  "IN": {
+    "ordre": "NACZS",
+    "region": "state",
+    "postal": "pin"
+  },
+  "IO": {
+    "ordre": "NACZ"
+  },
+  "IQ": {
+    "ordre": "NACSZ"
+  },
+  "IR": {
+    "ordre": "NSCDAZ",
+    "quartier": "neighborhood"
+  },
+  "IS": {
+    "ordre": "NAZC"
+  },
+  "IT": {
+    "ordre": "NAZCS"
+  },
+  "JE": {
+    "ordre": "NACZ"
+  },
+  "JM": {
+    "ordre": "NACS",
+    "region": "parish"
+  },
+  "JO": {
+    "ordre": "NACZ"
+  },
+  "JP": {
+    "ordre": "NASZ",
+    "region": "prefecture"
+  },
+  "KE": {
+    "ordre": "NACZ"
+  },
+  "KG": {
+    "ordre": "NAZC"
+  },
+  "KH": {
+    "ordre": "NACZ"
+  },
+  "KI": {
+    "ordre": "NASC",
+    "region": "island"
+  },
+  "KM": {
+    "ordre": "NAC"
+  },
+  "KN": {
+    "ordre": "NACS",
+    "region": "island"
+  },
+  "KP": {
+    "ordre": "NACSZ"
+  },
+  "KR": {
+    "ordre": "NADCSZ",
+    "region": "do_si",
+    "quartier": "district"
+  },
+  "KW": {
+    "ordre": "NAZC"
+  },
+  "KY": {
+    "ordre": "NASZ",
+    "region": "island"
+  },
+  "KZ": {
+    "ordre": "ZSCAN"
+  },
+  "LA": {
+    "ordre": "NAZC"
+  },
+  "LB": {
+    "ordre": "NACZ"
+  },
+  "LC": {
+    "ordre": "NAC"
+  },
+  "LI": {
+    "ordre": "NAZC"
+  },
+  "LK": {
+    "ordre": "NACZ"
+  },
+  "LR": {
+    "ordre": "NAZC"
+  },
+  "LS": {
+    "ordre": "NACZ"
+  },
+  "LT": {
+    "ordre": "NAZCS"
+  },
+  "LU": {
+    "ordre": "NAZC"
+  },
+  "LV": {
+    "ordre": "NASCZ"
+  },
+  "LY": {
+    "ordre": "NAC"
+  },
+  "MA": {
+    "ordre": "NAZC"
+  },
+  "MC": {
+    "ordre": "NAZC"
+  },
+  "MD": {
+    "ordre": "NAZC"
+  },
+  "ME": {
+    "ordre": "NAZC"
+  },
+  "MF": {
+    "ordre": "NAZC"
+  },
+  "MG": {
+    "ordre": "NAZC"
+  },
+  "MH": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "MK": {
+    "ordre": "NAZC"
+  },
+  "ML": {
+    "ordre": "NAC"
+  },
+  "MM": {
+    "ordre": "NACZ"
+  },
+  "MN": {
+    "ordre": "NACSZ"
+  },
+  "MO": {
+    "ordre": "NA"
+  },
+  "MP": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "MQ": {
+    "ordre": "NAZC"
+  },
+  "MR": {
+    "ordre": "NAC"
+  },
+  "MS": {
+    "ordre": "NAC"
+  },
+  "MT": {
+    "ordre": "NACZ"
+  },
+  "MU": {
+    "ordre": "NAZC"
+  },
+  "MV": {
+    "ordre": "NACZ"
+  },
+  "MW": {
+    "ordre": "NAC"
+  },
+  "MX": {
+    "ordre": "NADZCS",
+    "region": "state",
+    "quartier": "neighborhood"
+  },
+  "MY": {
+    "ordre": "NADZCS",
+    "region": "state",
+    "quartier": "village_township"
+  },
+  "MZ": {
+    "ordre": "NAZCS"
+  },
+  "NA": {
+    "ordre": "NACZ"
+  },
+  "NC": {
+    "ordre": "NAZC"
+  },
+  "NE": {
+    "ordre": "NAZC"
+  },
+  "NF": {
+    "ordre": "NACSZ"
+  },
+  "NG": {
+    "ordre": "NADCZS",
+    "region": "state"
+  },
+  "NI": {
+    "ordre": "NAZCS",
+    "region": "department"
+  },
+  "NL": {
+    "ordre": "NAZC"
+  },
+  "NO": {
+    "ordre": "NAZC",
+    "ville": "post_town"
+  },
+  "NP": {
+    "ordre": "NACZ"
+  },
+  "NR": {
+    "ordre": "NAS",
+    "region": "district"
+  },
+  "NU": {
+    "ordre": "NAC"
+  },
+  "NZ": {
+    "ordre": "NADCZ"
+  },
+  "OM": {
+    "ordre": "NAZC"
+  },
+  "PA": {
+    "ordre": "NACS"
+  },
+  "PE": {
+    "ordre": "NACZS",
+    "ville": "district"
+  },
+  "PF": {
+    "ordre": "NAZCS",
+    "region": "island"
+  },
+  "PG": {
+    "ordre": "NACZS"
+  },
+  "PH": {
+    "ordre": "NADCZS"
+  },
+  "PK": {
+    "ordre": "NADCZ"
+  },
+  "PL": {
+    "ordre": "NAZC"
+  },
+  "PM": {
+    "ordre": "NAZC"
+  },
+  "PN": {
+    "ordre": "NACZ"
+  },
+  "PR": {
+    "ordre": "NACZ",
+    "postal": "zip"
+  },
+  "PS": {
+    "ordre": "NAC"
+  },
+  "PT": {
+    "ordre": "NAZC"
+  },
+  "PW": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "PY": {
+    "ordre": "NAZC"
+  },
+  "QA": {
+    "ordre": "NAC"
+  },
+  "RE": {
+    "ordre": "NAZC"
+  },
+  "RO": {
+    "ordre": "NAZSC"
+  },
+  "RS": {
+    "ordre": "NAZC"
+  },
+  "RU": {
+    "ordre": "NACSZ",
+    "region": "oblast"
+  },
+  "RW": {
+    "ordre": "NAC"
+  },
+  "SA": {
+    "ordre": "NACZ"
+  },
+  "SB": {
+    "ordre": "NAC"
+  },
+  "SC": {
+    "ordre": "NACS",
+    "region": "island"
+  },
+  "SD": {
+    "ordre": "NACZ",
+    "ville": "district"
+  },
+  "SE": {
+    "ordre": "NAZC",
+    "ville": "post_town"
+  },
+  "SG": {
+    "ordre": "NAZ"
+  },
+  "SH": {
+    "ordre": "NACZ"
+  },
+  "SI": {
+    "ordre": "NAZC"
+  },
+  "SJ": {
+    "ordre": "NAZC",
+    "ville": "post_town"
+  },
+  "SK": {
+    "ordre": "NAZC"
+  },
+  "SL": {
+    "ordre": "NAC"
+  },
+  "SM": {
+    "ordre": "NAZC"
+  },
+  "SN": {
+    "ordre": "NAZC"
+  },
+  "SO": {
+    "ordre": "NACSZ"
+  },
+  "SR": {
+    "ordre": "NACS"
+  },
+  "SS": {
+    "ordre": "NAC"
+  },
+  "ST": {
+    "ordre": "NAC"
+  },
+  "SV": {
+    "ordre": "NAZCS"
+  },
+  "SX": {
+    "ordre": "NAC"
+  },
+  "SY": {
+    "ordre": "NAC",
+    "ville": "district"
+  },
+  "SZ": {
+    "ordre": "NACZ"
+  },
+  "TA": {
+    "ordre": "NACZ"
+  },
+  "TC": {
+    "ordre": "NACZ"
+  },
+  "TD": {
+    "ordre": "NAC"
+  },
+  "TF": {
+    "ordre": "NAC"
+  },
+  "TG": {
+    "ordre": "NAC"
+  },
+  "TH": {
+    "ordre": "NADCSZ"
+  },
+  "TJ": {
+    "ordre": "NAZC"
+  },
+  "TK": {
+    "ordre": "NAC"
+  },
+  "TL": {
+    "ordre": "NAC"
+  },
+  "TM": {
+    "ordre": "NAZC"
+  },
+  "TN": {
+    "ordre": "NAZC"
+  },
+  "TO": {
+    "ordre": "NAC"
+  },
+  "TR": {
+    "ordre": "NAZCS",
+    "ville": "district"
+  },
+  "TT": {
+    "ordre": "NACZ"
+  },
+  "TV": {
+    "ordre": "NACS",
+    "region": "island"
+  },
+  "TW": {
+    "ordre": "NACSZ",
+    "region": "county",
+    "ville": "district"
+  },
+  "TZ": {
+    "ordre": "NAZC"
+  },
+  "UA": {
+    "ordre": "NACSZ",
+    "region": "oblast"
+  },
+  "UG": {
+    "ordre": "NAC"
+  },
+  "UM": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "US": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "UY": {
+    "ordre": "NAZCS"
+  },
+  "UZ": {
+    "ordre": "NAZCS"
+  },
+  "VA": {
+    "ordre": "NAZC"
+  },
+  "VC": {
+    "ordre": "NACZ"
+  },
+  "VE": {
+    "ordre": "NACZS",
+    "region": "state"
+  },
+  "VG": {
+    "ordre": "NACZ"
+  },
+  "VI": {
+    "ordre": "NACSZ",
+    "region": "state",
+    "postal": "zip"
+  },
+  "VN": {
+    "ordre": "NACSZ"
+  },
+  "VU": {
+    "ordre": "NAC"
+  },
+  "WF": {
+    "ordre": "NAZC"
+  },
+  "WS": {
+    "ordre": "NAC"
+  },
+  "XK": {
+    "ordre": "NAZC"
+  },
+  "YE": {
+    "ordre": "NAC"
+  },
+  "YT": {
+    "ordre": "NAZC"
+  },
+  "ZA": {
+    "ordre": "NADCZ"
+  },
+  "ZM": {
+    "ordre": "NAZC"
+  },
+  "ZW": {
+    "ordre": "NAC"
+  },
+  "ZZ": {
+    "ordre": "NAC",
+    "region": "province",
+    "postal": "postal",
+    "ville": "city",
+    "quartier": "suburb"
+  }
+}

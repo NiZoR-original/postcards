@@ -7,11 +7,15 @@
   'use strict';
   const URL_API = document.currentScript.dataset.api;
   const CLE_REFUS = 'pc_stats_refus';
+  let refusMemoire = null;
+  let jeton = null;
+  let depuis = null;
 
   // Signal « ne pas me suivre » du navigateur : prioritaire, le bouton ne peut pas le lever
   const signalNavigateur = navigator.globalPrivacyControl === true || navigator.doNotTrack === '1';
 
   function refusLocal() {
+    if (refusMemoire !== null) return refusMemoire;
     try { return localStorage.getItem(CLE_REFUS) === '1'; } catch (e) { return false; }
   }
   function refuse() {
@@ -20,53 +24,38 @@
 
   // Bouton d'opposition / de réactivation (page Confidentialité)
   const bouton = document.querySelector('[data-stats-choix]');
-  if (bouton) {
+  function majBouton() {
+    if (!bouton) return;
     const etat = document.querySelector('[data-stats-etat]');
-    const maj = () => {
-      if (signalNavigateur) {
-        // Rien à réactiver ici : c'est le réglage du navigateur qui bloque le comptage
-        etat.textContent = bouton.dataset.etatSignal;
-        bouton.hidden = true;
-        return;
-      }
-      const off = refusLocal();
-      bouton.textContent = off ? bouton.dataset.texteOui : bouton.dataset.texteNon;
-      etat.textContent = off ? bouton.dataset.etatNon : bouton.dataset.etatOui;
-    };
-    bouton.addEventListener('click', () => {
-      try {
-        if (localStorage.getItem(CLE_REFUS) === '1') localStorage.removeItem(CLE_REFUS);
-        else localStorage.setItem(CLE_REFUS, '1');
-      } catch (e) { /* stockage bloqué : rien à mémoriser */ }
-      maj();
-    });
-    maj();
+    const off = refusLocal();
+    bouton.hidden = signalNavigateur;
+    bouton.textContent = off ? bouton.dataset.texteOui : bouton.dataset.texteNon;
+    etat.textContent = signalNavigateur ? bouton.dataset.etatSignal
+      : (off ? bouton.dataset.etatNon : bouton.dataset.etatOui);
   }
-
-  if (refuse() || !navigator.sendBeacon || !URL_API) return;
-
-  let jeton = null;
-  try {
-    jeton = sessionStorage.getItem('pc_visite');
-    if (!/^[a-f0-9]{32}$/.test(jeton || '')) {
-      const octets = crypto.getRandomValues(new Uint8Array(16));
-      jeton = Array.from(octets, o => o.toString(16).padStart(2, '0')).join('');
-      sessionStorage.setItem('pc_visite', jeton);
-    }
-  } catch (e) {
-    return; // sans sessionStorage, impossible de regrouper les pages d'une visite
+  if (bouton) {
+    bouton.addEventListener('click', () => {
+      if (signalNavigateur) return;
+      const off = !refusLocal();
+      try {
+        if (off) localStorage.setItem(CLE_REFUS, '1');
+        else localStorage.removeItem(CLE_REFUS);
+        refusMemoire = null;
+      } catch (e) { refusMemoire = off; }
+      actualiser();
+    });
   }
 
   let tz = '';
   try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* inconnu */ }
 
   function envoyer(pages, secondes) {
+    if (!jeton || refuse()) return;
     const donnees = new URLSearchParams({ v: jeton, tz, p: pages, d: secondes });
     navigator.sendBeacon(URL_API, donnees);
   }
 
   // Temps visible : compté seulement quand l'onglet est au premier plan
-  let depuis = document.visibilityState === 'visible' ? Date.now() : null;
   function solder() {
     if (depuis === null) return;
     const s = Math.round((Date.now() - depuis) / 1000);
@@ -74,11 +63,44 @@
     if (s > 0) envoyer(0, s);
   }
 
-  envoyer(1, 0);
+  function actualiser() {
+    majBouton();
+    if (refuse()) {
+      depuis = null;
+      jeton = null;
+      try { sessionStorage.removeItem('pc_visite'); } catch (e) { /* stockage bloqué */ }
+      return;
+    }
+    if (jeton || !navigator.sendBeacon || !URL_API) return;
+    try {
+      const existant = sessionStorage.getItem('pc_visite');
+      if (/^[a-f0-9]{32}$/.test(existant || '')) {
+        jeton = existant;
+      } else {
+        const octets = crypto.getRandomValues(new Uint8Array(16));
+        const nouveau = Array.from(octets, o => o.toString(16).padStart(2, '0')).join('');
+        sessionStorage.setItem('pc_visite', nouveau);
+        jeton = nouveau;
+      }
+    } catch (e) {
+      return; // sans sessionStorage, impossible de regrouper les pages d'une visite
+    }
+    envoyer(1, 0);
+    depuis = document.visibilityState === 'visible' ? Date.now() : null;
+  }
+
+  actualiser();
+  window.addEventListener('storage', e => {
+    if (e.key === CLE_REFUS || e.key === null) actualiser();
+  });
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') solder();
-    else depuis = Date.now();
+    else if (jeton && !refuse()) depuis = Date.now();
   });
   window.addEventListener('pagehide', solder);
-  window.addEventListener('pageshow', e => { if (e.persisted) depuis = Date.now(); }); // retour arrière (cache)
+  window.addEventListener('pageshow', e => {
+    if (!e.persisted) return;
+    actualiser();
+    if (jeton && document.visibilityState === 'visible') depuis = Date.now();
+  });
 })();

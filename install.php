@@ -15,6 +15,7 @@ $fichierConfig = __DIR__ . '/db_config.php';
 $erreurs = [];
 $messages = [];
 $configAAfficher = null; // contenu de db_config.php si on n'a pas pu l'écrire
+header('Cache-Control: no-store');
 
 // ---------------------------------------------------------------- 1. Vérifications
 $verifs = [];
@@ -55,14 +56,41 @@ function compter_admins(?PDO $pdo): int
     }
     try {
         return (int) $pdo->query('SELECT COUNT(*) FROM utilisateurs')->fetchColumn();
-    } catch (PDOException) {
-        return 0; // table pas encore créée
+    } catch (PDOException $e) {
+        if ((int) ($e->errorInfo[1] ?? 0) === 1146) {
+            return 0; // table pas encore créée
+        }
+        throw $e;
     }
 }
 
 // Déjà installé : plus rien à faire ici
 if ($pdo && compter_admins($pdo) > 0) {
     $etape = 'termine';
+    unset($_SESSION['pc_install']);
+} else {
+    $fichierCle = __DIR__ . '/install_key.php';
+    $cle = is_file($fichierCle) ? require $fichierCle : null;
+    if (!is_string($cle) || !preg_match('/\A[a-f0-9]{64}\z/', $cle)) {
+        http_response_code(503);
+        $etape = 'cle_absente';
+    } else {
+        $empreinte = hash('sha256', $cle);
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'autoriser') {
+            csrf_verifier();
+            $saisie = $_POST['cle'] ?? null;
+            if (is_string($saisie) && hash_equals($cle, trim($saisie))) {
+                session_regenerate_id(true);
+                $_SESSION['pc_install'] = $empreinte;
+                rediriger('install.php');
+            }
+            $erreurs[] = 'Clé d’installation invalide.';
+        }
+        if (!hash_equals($empreinte, $_SESSION['pc_install'] ?? '')) {
+            http_response_code(403);
+            $etape = 'autoriser';
+        }
+    }
 }
 
 // ---------------------------------------------------------------- Traitement des formulaires
@@ -102,8 +130,21 @@ if (!isset($etape) && $_SERVER['REQUEST_METHOD'] === 'POST' && !$bloquant) {
                 foreach ($cfg as $k => $v) {
                     $contenu .= "define('$k', " . var_export($v, true) . ");\n";
                 }
-                if (@file_put_contents($fichierConfig, $contenu) !== false) {
-                    @chmod($fichierConfig, 0640);
+                $fichierTemp = __DIR__ . '/pc_config_' . bin2hex(random_bytes(16)) . '.php';
+                $temporaire = @fopen($fichierTemp, 'x');
+                $publie = false;
+                if ($temporaire !== false) {
+                    try {
+                        $publie = chmod($fichierTemp, 0640)
+                            && fwrite($temporaire, $contenu) === strlen($contenu)
+                            && fflush($temporaire)
+                            && @link($fichierTemp, $fichierConfig);
+                    } finally {
+                        fclose($temporaire);
+                        unlink($fichierTemp);
+                    }
+                }
+                if ($publie || is_file($fichierConfig)) {
                     rediriger('install.php');
                 }
                 $configAAfficher = $contenu;
@@ -126,10 +167,29 @@ if (!isset($etape) && $_SERVER['REQUEST_METHOD'] === 'POST' && !$bloquant) {
         } elseif ($mdp !== ($_POST['password2'] ?? '')) {
             $erreurs[] = 'Les deux mots de passe diffèrent.';
         } else {
-            $pdo->prepare('INSERT INTO utilisateurs (nom_utilisateur, password_hash, derniere_connexion) VALUES (?, ?, NOW())')
-                ->execute([$nom, password_hash($mdp, PASSWORD_DEFAULT)]);
+            $verrou = 'pc_install_' . substr(hash('sha256', DB_NAME), 0, 40);
+            $st = $pdo->prepare('SELECT GET_LOCK(?, 5)');
+            $st->execute([$verrou]);
+            if (!(int) $st->fetchColumn()) {
+                http_response_code(503);
+                exit('Une installation est en cours. Réessaie dans quelques secondes.');
+            }
+            try {
+                $id = null;
+                if (compter_admins($pdo) === 0) {
+                    $pdo->prepare('INSERT INTO utilisateurs (nom_utilisateur, password_hash, derniere_connexion) VALUES (?, ?, NOW())')
+                        ->execute([$nom, password_hash($mdp, PASSWORD_DEFAULT)]);
+                    $id = (int) $pdo->lastInsertId();
+                }
+            } finally {
+                $st = $pdo->prepare('SELECT RELEASE_LOCK(?)');
+                $st->execute([$verrou]);
+            }
+            if ($id === null) {
+                rediriger('install.php');
+            }
             session_regenerate_id(true);
-            $_SESSION = ['pc_admin' => (int) $pdo->lastInsertId(), 'pc_user' => $nom, 'pc_last' => time()];
+            $_SESSION = ['pc_admin' => $id, 'pc_user' => $nom, 'pc_last' => time()];
             flash('Installation terminée. Bienvenue !');
             rediriger('admin/index.php');
         }
@@ -157,7 +217,7 @@ if (!isset($etape)) {
     }
 }
 
-$numeros = ['verifs' => 1, 'config' => 2, 'config_cassee' => 2, 'migrations' => 3, 'admin' => 4, 'termine' => 5];
+$numeros = ['cle_absente' => 0, 'autoriser' => 0, 'verifs' => 1, 'config' => 2, 'config_cassee' => 2, 'migrations' => 3, 'admin' => 4, 'termine' => 5];
 ?>
 <!DOCTYPE html>
 <html lang="fr"<?= attr_theme() ?>>
@@ -182,7 +242,16 @@ $numeros = ['verifs' => 1, 'config' => 2, 'config_cassee' => 2, 'migrations' => 
     <?php foreach ($messages as $m): ?><div class="flash"><?= h($m) ?></div><?php endforeach; ?>
     <?php foreach ($erreurs as $m): ?><div class="flash erreur"><?= h($m) ?></div><?php endforeach; ?>
 
-    <?php if ($etape === 'termine'): ?>
+    <?php if ($etape === 'cle_absente'): ?>
+        <p>L’installation web est verrouillée. Dépose un fichier <code>install_key.php</code> à la racine selon la documentation.</p>
+    <?php elseif ($etape === 'autoriser'): ?>
+        <form method="post">
+            <?= csrf_field() ?>
+            <input type="hidden" name="action" value="autoriser">
+            <label>Clé d’installation <input type="password" name="cle" required autocomplete="off"></label>
+            <button type="submit" class="bouton">Ouvrir l’installation</button>
+        </form>
+    <?php elseif ($etape === 'termine'): ?>
         <p><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i> L'application est déjà installée. Cette page est désormais verrouillée.</p>
         <p class="aide">Les mises à jour du schéma se font depuis l'admin, menu « Migrations ».</p>
         <a class="bouton" href="admin/index.php">Aller à l'admin</a>

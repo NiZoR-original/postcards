@@ -7,7 +7,7 @@
 (function () {
   'use strict';
   const PC = window.PC;
-  const COULEURS = ['#f6d6a8', '#efa95a', '#d9762b', '#9c4a14'];
+  const COULEURS = ['#f4d09b', '#dda45e', '#c47c3b', '#995021'];
   // Classes de la légende, recalculées à chaque construction selon les données affichées (calculerClasses)
   let BUCKETS = [];
 
@@ -28,8 +28,11 @@
   let mode = 'recue';
   let map = null;
   let paysActif = null;
+  let requetePays = null;
   const noms = new Intl.DisplayNames([PC.lang], { type: 'region' });
-  const GRIS = '#b9b2a7';
+  const selection = document.getElementById('atlas-selection');
+  const panneau = document.getElementById('panneau');
+  const attente = document.getElementById('atlas-attente');
 
   function nomPays(code) {
     if (PC.stats[code]) return PC.stats[code].nom;
@@ -40,6 +43,7 @@
   // Fond capturé par assets/fonds/capture.js (jsVectorMap ne l'expose pas)
   const fond = (window.PC_FONDS && window.PC_FONDS[PC.fond]) || { paths: {} };
   const worldPaths = fond.paths;
+  const etiquettes = fond.etiquettes || {};
   // Fond projeté (monde) : points en [lat, lng] ; fond sans projection (USA & Canada) : en pixels
   const meridien = fond.projection ? fond.projection.centralMeridian || 0 : null;
 
@@ -51,6 +55,11 @@
 
   function bucket(n) {
     return BUCKETS.find(b => n >= b.min && n <= b.max);
+  }
+
+  function zoneEncart(code) {
+    if (code.startsWith('_') && Object.hasOwn(etiquettes, code.slice(1))) return code.slice(1);
+    return code;
   }
 
   function esc(s) {
@@ -66,6 +75,7 @@
     const max = Math.max(0, ...Object.keys(PC.stats).map(nb));
     BUCKETS = calculerClasses(max);
     legende();
+    if (typeof jsVectorMap === 'undefined' || !Object.keys(worldPaths).length) return;
 
     const values = {};
     const markers = [];
@@ -83,7 +93,7 @@
       if (meridien !== null && b - meridien < -180) b += 360;
       markers.push({
         name: nomPays(code), coords: [a, b], code: code,
-        style: { initial: { fill: n ? bucket(n).color : GRIS, r: n ? 5 : 3.5 } },
+        style: { initial: { fill: n ? bucket(n).color : '#827973', r: n ? 5 : 3.5 } },
       });
     }
     // Les points avec des cartes dessinés en dernier, donc au-dessus des points gris
@@ -93,6 +103,7 @@
     map = new jsVectorMap({
       selector: '#map',
       map: PC.fond,
+      backgroundColor: 'var(--eau)',
       zoomOnScroll: false,
       zoomButtons: true,
       regionsSelectable: true,
@@ -100,17 +111,18 @@
       selectedRegions: paysActif && worldPaths[paysActif] ? [paysActif] : [],
       regionStyle: {
         // frontières dessinées par tracerFrontieres() au-dessus des zones
-        initial: { fill: '#e4e1da', stroke: 'none', fillOpacity: 1 },
+        initial: { fill: '#9c9288', stroke: 'none', fillOpacity: 1 },
         hover: { fillOpacity: 0.75, cursor: 'pointer' },
-        selected: { fill: '#2f6f8f' },
+        selected: { fill: '#527a96' },
       },
       markerStyle: {
         initial: { r: 5, stroke: '#fff', strokeWidth: 1.5, fillOpacity: 1 },
-        hover: { cursor: 'pointer', stroke: '#2f6f8f' },
+        hover: { cursor: 'pointer', stroke: '#527a96' },
       },
       markers: markers,
       series: { regions: [{ attribute: 'fill', scale: scale, values: values }] },
       onRegionTooltipShow(event, tooltip, code) {
+        code = zoneEncart(code);
         const s = PC.stats[code];
         const nom = nomPays(code);
         tooltip.text(s ? nom + ' — ' + s.recue + ' ↓ · ' + s.envoyee + ' ↑' : nom);
@@ -120,7 +132,7 @@
         const s = PC.stats[m.code];
         tooltip.text(s ? m.name + ' — ' + s.recue + ' ↓ · ' + s.envoyee + ' ↑' : m.name);
       },
-      onRegionClick(event, code) { ouvrirPays(code); },
+      onRegionClick(event, code) { ouvrirPays(zoneEncart(code)); },
       onMarkerClick(event, index) { ouvrirPays(markers[index].code); },
       // Au premier affichage, jsVectorMap attend DOMContentLoaded avant de dessiner : les zones
       // n'existent qu'à partir de cet événement
@@ -153,6 +165,16 @@
     // tous les liserés d'abord, puis tous les traits : aucun remplissage ne vient les recouvrir
     couche.append(liseres, traits);
     groupe.appendChild(couche);
+
+    for (const [code, [x, y]] of Object.entries(etiquettes)) {
+      const texte = document.createElementNS(SVG, 'text');
+      texte.setAttribute('class', 'pc-nom-encart');
+      texte.setAttribute('aria-hidden', 'true');
+      texte.setAttribute('x', x);
+      texte.setAttribute('y', y);
+      texte.textContent = nomPays(code);
+      groupe.appendChild(texte);
+    }
   }
 
   function legende() {
@@ -162,59 +184,88 @@
   }
 
   async function ouvrirPays(code) {
+    requetePays?.abort();
+    const requete = new AbortController();
+    requetePays = requete;
     paysActif = code;
-    const panneau = document.getElementById('panneau');
-    afficherPanneau(true);
+    selection.value = code;
+    if (map) map.setSelectedRegions(worldPaths[code] ? [code] : []);
+    panneau.hidden = false;
+    attente.hidden = true;
+    const titre = entetePanneau(nomPays(code));
+    panneau.innerHTML = titre + '<p role="status">' + esc(PC.t.chargement) + '</p>';
     panneau.classList.add('charge');
     try {
       const sens = mode === 'tous' ? '' : mode;
-      const r = await fetch('api/pays.php?' + (code.includes('-') ? 'subdivision' : 'code') + '=' + encodeURIComponent(code) + '&sens=' + sens + '&lang=' + PC.lang);
+      const r = await fetch('api/pays.php?' + (code.includes('-') ? 'subdivision' : 'code') + '=' + encodeURIComponent(code) + '&sens=' + sens + '&lang=' + PC.lang, {signal: requete.signal});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
       const d = await r.json();
+      if (requete.signal.aborted) return;
       panneau.innerHTML = rendu(d);
     } catch (e) {
-      panneau.innerHTML = '<p class="erreur">Erreur de chargement.</p>';
+      if (requete.signal.aborted) return;
+      panneau.innerHTML = titre + '<p class="erreur" role="status">' + esc(PC.t.erreurChargement) + '</p>';
     }
+    requetePays = null;
     panneau.classList.remove('charge');
-    // Le panneau est sous la carte : on le fait apparaître à l'écran s'il n'est pas déjà visible
-    // marge haute = hauteur de la barre de menu fixe, pour que le titre du panneau ne passe pas dessous
+    // Le panneau est sous la carte sur mobile. La marge tient compte du menu fixe.
     const barre = document.querySelector('.topbar');
     panneau.style.scrollMarginTop = ((barre ? barre.offsetHeight : 0) + 16) + 'px';
-    panneau.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    panneau.scrollIntoView({ block: 'nearest' });
   }
 
-  // Affiche / masque le panneau du pays, sous la carte
-  function afficherPanneau(ouvert) {
-    document.getElementById('panneau').hidden = !ouvert;
-  }
-
-  document.getElementById('panneau').addEventListener('click', e => {
-    if (!e.target.closest('[data-fermer]')) return;
+  function fermerPanneau() {
+    requetePays?.abort();
+    requetePays = null;
     paysActif = null;
-    afficherPanneau(false);
+    selection.value = '';
+    panneau.classList.remove('charge');
+    panneau.hidden = true;
+    attente.hidden = false;
     if (map) map.clearSelectedRegions();
+  }
+
+  panneau.addEventListener('click', e => {
+    if (!e.target.closest('[data-fermer]')) return;
+    fermerPanneau();
+    selection.focus();
+  });
+  selection.addEventListener('change', () => {
+    if (selection.value) ouvrirPays(selection.value);
+    else fermerPanneau();
   });
 
-  function rendu(d) {
-    let html = '<div class="panneau-titre"><h2>' + esc(d.drapeau) + ' ' + esc(d.nom) + '</h2>' +
+  function entetePanneau(nom) {
+    return '<div class="panneau-titre"><h2>' + esc(nom) + '</h2>' +
       '<button type="button" data-fermer aria-label="' + esc(PC.t.fermer) + '">&times;</button></div>';
-    if (d.lien) html += '<p><a class="bouton secondaire" href="' + esc(d.lien.url) + '"><i class="fa-solid fa-map"></i> ' + esc(d.lien.texte) + '</a></p>';
+  }
+
+  function rendu(d) {
+    let html = entetePanneau(d.drapeau + ' ' + d.nom);
+    if (d.lien && !window.location.pathname.endsWith('/' + d.lien.url)) {
+      html += '<p><a class="bouton secondaire" href="' + esc(d.lien.url) + '"><i class="fa-solid fa-map"></i> ' + esc(d.lien.texte) + '</a></p>';
+    }
     if (!d.cartes.length) return html + '<p class="aide">' + esc(PC.t.aucune) + '</p>';
     html += '<div class="vignettes">';
     for (const c of d.cartes) {
       const img = c.photo
-        ? '<img loading="lazy" src="photo.php?id=' + c.photo + '" alt="' + esc(c.titre) + '">'
+        ? '<img loading="lazy" src="photo.php?v=2&amp;id=' + c.photo + '" alt="' + esc(c.titre) + '">'
         : '<div class="sans-photo"><i class="fa-regular fa-image"></i><span>' + esc(PC.t.sansPhoto) + '</span></div>';
       const icone = c.sens === 'recue' ? 'fa-inbox' : 'fa-paper-plane';
       html += '<a class="vignette" href="carte.php?id=' + c.id + '">' + img +
-        '<span class="meta"><i class="fa-solid ' + icone + '"></i> ' + esc(c.reference || c.titre || '') +
-        (c.en_route ? ' <em>' + esc(PC.t.enRoute) + '</em>' : '') + '</span></a>';
+        '<span class="meta">' + (c.titre ? '<strong>' + esc(c.titre) + '</strong>' : '') +
+        '<span><i class="fa-solid ' + icone + '" aria-hidden="true"></i> ' + esc(c.reference || '') +
+        (c.en_route ? ' <em>' + esc(PC.t.enRoute) + '</em>' : '') + '</span></span></a>';
     }
     return html + '</div>';
   }
 
   document.querySelectorAll('.mode-switch button').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-switch button').forEach(b => b.classList.toggle('actif', b === btn));
+      document.querySelectorAll('.mode-switch button').forEach(b => {
+        b.classList.toggle('actif', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
       mode = btn.dataset.mode;
       construire();
       if (paysActif) ouvrirPays(paysActif);
@@ -223,7 +274,6 @@
   document.querySelectorAll('.liste-pays [data-pays]').forEach(btn => {
     btn.addEventListener('click', () => {
       ouvrirPays(btn.dataset.pays);
-      document.getElementById('panneau').scrollIntoView({ behavior: 'smooth' });
     });
   });
 
