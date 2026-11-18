@@ -19,4 +19,17 @@
       b.setAttribute('aria-pressed', actif ? 'true' : 'false');
     });
   }));
+
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) {
+    const systeme = matchMedia('(prefers-color-scheme: dark)');
+    function couleur() {
+      meta.content = getComputedStyle(document.body).backgroundColor;
+    }
+    new MutationObserver(couleur).observe(document.documentElement, {
+      attributes: true, attributeFilter: ['data-theme']
+    });
+    systeme.addEventListener('change', couleur);
+    couleur();
+  }
 })();

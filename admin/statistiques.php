@@ -6,7 +6,7 @@ const PERIODES = ['30j' => '30 derniers jours', '12m' => '12 derniers mois', 'to
 $periode = isset(PERIODES[$_GET['periode'] ?? '']) ? $_GET['periode'] : '30j';
 
 try {
-    db()->query('SELECT 1 FROM visites LIMIT 1');
+    purger_visites(db());
     $table_ok = true;
 } catch (PDOException) {
     $table_ok = false;

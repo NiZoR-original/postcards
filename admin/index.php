@@ -15,7 +15,7 @@ $params = [];
 if ($f['sens']) { $where[] = 'c.sens = ?'; $params[] = $f['sens']; }
 if ($f['plateforme']) { $where[] = 'c.plateforme = ?'; $params[] = $f['plateforme']; }
 if ($f['pays']) { $where[] = 'c.pays_code = ?'; $params[] = $f['pays']; }
-if ($f['en_route']) { $where[] = "c.sens = 'envoyee' AND c.date_reception IS NULL"; }
+if ($f['en_route']) { $where[] = CARTE_EN_ROUTE_SQL; }
 if ($f['q'] !== '') {
     $where[] = '(c.reference LIKE ? OR c.titre LIKE ? OR c.correspondant LIKE ? OR c.ville LIKE ?)';
     array_push($params, ...array_fill(0, 4, '%' . $f['q'] . '%'));
@@ -40,12 +40,13 @@ $cartes = $st->fetchAll();
 
 $compteurs = db()->query("SELECT
     SUM(sens = 'recue') recues, SUM(sens = 'envoyee') envoyees,
-    SUM(sens = 'envoyee' AND date_reception IS NULL) en_route,
+    SUM(" . CARTE_EN_ROUTE_SQL . ") en_route,
     COUNT(DISTINCT pays_code) pays FROM cartes")->fetch();
 
 $pays = liste_pays();
 entete_admin('cartes', 'Cartes');
 ?>
+<h1>Cartes</h1>
 <section class="stats">
     <span><i class="fa-solid fa-inbox"></i> <?= (int) $compteurs['recues'] ?> reçues</span>
     <span><i class="fa-solid fa-paper-plane"></i> <?= (int) $compteurs['envoyees'] ?> envoyées</span>
@@ -54,19 +55,19 @@ entete_admin('cartes', 'Cartes');
 </section>
 
 <form class="filtres-admin" method="get">
-    <input type="search" name="q" value="<?= h($f['q']) ?>" placeholder="Référence, titre, pseudo, ville…">
-    <select name="sens">
-        <option value="">Reçues et envoyées</option>
+    <input type="search" name="q" value="<?= h($f['q']) ?>" aria-label="Rechercher dans les cartes" placeholder="Référence, titre, pseudo, ville…">
+    <select name="sens" aria-label="Sens">
+        <option value="">Tous les sens</option>
         <option value="recue" <?= $f['sens'] === 'recue' ? 'selected' : '' ?>>Reçues</option>
         <option value="envoyee" <?= $f['sens'] === 'envoyee' ? 'selected' : '' ?>>Envoyées</option>
     </select>
-    <select name="plateforme">
-        <option value="">Toutes plateformes</option>
+    <select name="plateforme" aria-label="Plateforme">
+        <option value="">Plateformes</option>
         <?php foreach (['postcrossing', 'cardzilla', 'swap', 'autre'] as $p): ?>
             <option value="<?= $p ?>" <?= $f['plateforme'] === $p ? 'selected' : '' ?>><?= h(libelle_plateforme($p)) ?></option>
         <?php endforeach; ?>
     </select>
-    <select name="pays">
+    <select name="pays" aria-label="Pays">
         <option value="">Tous pays</option>
         <?php foreach ($pays as $code => $nom): ?>
             <option value="<?= h($code) ?>" <?= $f['pays'] === $code ? 'selected' : '' ?>><?= h($nom) ?></option>
@@ -79,26 +80,26 @@ entete_admin('cartes', 'Cartes');
 
 <p class="aide"><?= $total ?> carte(s)</p>
 
-<table class="table-cartes">
+<table class="table-cartes table-inventaire" aria-label="Cartes">
     <thead><tr><th></th><th>Sens</th><th>Référence</th><th>Pays</th><th>Correspondant</th><th>Envoi</th><th>Réception</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($cartes as $c): ?>
         <tr class="<?= $c['publique'] ? '' : 'privee' ?>">
             <td class="mini"><?php if ($c['photo']): ?><img src="<?= h(url_photo((int) $c['photo'], 'thumb', '../')) ?>" alt="" loading="lazy"><?php endif; ?></td>
-            <td><i class="fa-solid <?= $c['sens'] === 'recue' ? 'fa-inbox' : 'fa-paper-plane' ?>" title="<?= $c['sens'] === 'recue' ? 'Reçue' : 'Envoyée' ?>"></i></td>
-            <td>
+            <td class="cellule-sens" data-libelle="Sens"><i class="fa-solid <?= $c['sens'] === 'recue' ? 'fa-inbox' : 'fa-paper-plane' ?>" aria-hidden="true" title="<?= $c['sens'] === 'recue' ? 'Reçue' : 'Envoyée' ?>"></i><span class="sens-mobile"><?= $c['sens'] === 'recue' ? 'Reçue' : 'Envoyée' ?></span></td>
+            <td class="cellule-principale">
                 <a href="carte.php?id=<?= (int) $c['id'] ?>"><strong><?= h($c['reference'] ?: '(sans réf.)') ?></strong></a>
                 <small><?= h(libelle_plateforme($c['plateforme'])) ?><?= $c['titre'] ? ' · ' . h($c['titre']) : '' ?></small>
             </td>
-            <td><?= drapeau($c['pays_code']) ?> <?= h($pays[$c['pays_code']] ?? $c['pays_code']) ?>
+            <td data-libelle="Pays"><?= drapeau($c['pays_code']) ?> <?= h($pays[$c['pays_code']] ?? $c['pays_code']) ?>
                 <?php if ($c['subdivision']): ?><small><?= h(nom_subdivision($c['subdivision'])) ?></small><?php endif; ?></td>
-            <td><?= h($c['correspondant']) ?></td>
-            <td><?= h(date_lisible($c['date_envoi'])) ?></td>
-            <td><?= $c['date_reception'] ? h(date_lisible($c['date_reception'])) : ($c['sens'] === 'envoyee' ? '<em>en route</em>' : '') ?></td>
+            <td data-libelle="Correspondant"><?= h($c['correspondant']) ?></td>
+            <td data-libelle="Envoi"><?= h(date_lisible($c['date_envoi'])) ?></td>
+            <td data-libelle="Réception"><?= carte_en_route($c) ? '<em>en route</em>' : h(date_lisible($c['date_reception'])) ?></td>
             <td class="icones">
                 <?php if (!$c['publique']): ?><i class="fa-solid fa-eye-slash" title="Privée"></i><?php endif; ?>
                 <?php if ($c['nb_photos']): ?><span title="Photos"><i class="fa-regular fa-images"></i> <?= (int) $c['nb_photos'] ?></span><?php endif; ?>
-                <?php if ($l = lien_plateforme($c)): ?><a href="<?= h($l) ?>" target="_blank" rel="noopener" title="Voir sur la plateforme"><i class="fa-solid fa-arrow-up-right-from-square"></i></a><?php endif; ?>
+                <?php if ($l = lien_plateforme($c)): ?><a href="<?= h($l) ?>" target="_blank" rel="noopener" aria-label="Voir sur la plateforme" title="Voir sur la plateforme"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></a><?php endif; ?>
             </td>
         </tr>
     <?php endforeach; ?>

@@ -18,6 +18,8 @@ const CODES_PAYS = [
     'VA','VC','VE','VG','VI','VN','VU','WF','WS','XK','YE','YT','ZA','ZM','ZW',
 ];
 
+const NOMS_PAYS_COURTS = ['HK' => 'Hong Kong', 'MO' => 'Macao'];
+
 function pays_valide(string $code): bool
 {
     return in_array($code, CODES_PAYS, true);
@@ -25,6 +27,9 @@ function pays_valide(string $code): bool
 
 function nom_pays(string $code, string $lang = 'fr'): string
 {
+    if (isset(NOMS_PAYS_COURTS[$code])) {
+        return NOMS_PAYS_COURTS[$code];
+    }
     $n = Locale::getDisplayRegion('und-' . $code, $lang);
     return ($n === '' || $n === $code) ? $code : $n;
 }

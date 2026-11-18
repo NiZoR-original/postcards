@@ -1,6 +1,10 @@
 Options -Indexes
 
-<FilesMatch "^(db_config.*\.php|.*\.sql|.*\.md|.*\.log)$">
+<IfModule mime_module>
+    AddType application/manifest+json .webmanifest
+</IfModule>
+
+<FilesMatch "^(db_config.*\.php|install_key\.php|pc_config_.*|.*\.sql|.*\.md|.*\.log)$">
     Require all denied
 </FilesMatch>
 

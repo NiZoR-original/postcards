@@ -49,7 +49,8 @@ uniquement : le <strong>pays</strong>, déduit du fuseau horaire de votre appare
 lue ni conservée), la <strong>date</strong>, le <strong>nombre de pages vues</strong> et le <strong>temps passé</strong>.
 Les pages d'une même visite sont regroupées par un numéro aléatoire gardé dans l'onglet (stockage de session du navigateur),
 effacé à sa fermeture et qui ne permet pas de vous reconnaître d'une visite à l'autre. Ces statistiques ne sont ni
-croisées avec d'autres données ni transmises à quiconque, et sont supprimées au bout de 25 mois.
+croisées avec d'autres données ni transmises à quiconque. Les visites de plus de 25 mois sont supprimées
+lors de la prochaine collecte ou consultation des statistiques dans l'administration.
 Cette mesure est exemptée de consentement (lignes directrices de la CNIL sur la mesure d'audience),
 mais vous pouvez vous y opposer à tout moment ; elle est aussi désactivée si votre navigateur envoie
 le signal Global Privacy Control ou « Do Not Track ».</p>
@@ -85,7 +86,8 @@ about you (name, address, handwriting) and you would like it removed or hidden, 
 the <strong>date</strong>, the <strong>number of pages viewed</strong> and the <strong>time spent</strong>.
 Pages of a single visit are grouped by a random number kept in the browser tab (session storage), erased when the tab
 is closed, which cannot recognise you from one visit to the next. These statistics are never combined with other data
-or shared with anyone, and are deleted after 25 months. This measurement is exempt from consent under the French
+or shared with anyone. Visits older than 25 months are deleted the next time a visit is recorded or the statistics
+are opened in the administration. This measurement is exempt from consent under the French
 data protection authority's guidelines, but you may object at any time; it is also disabled if your browser sends
 the Global Privacy Control or "Do Not Track" signal.</p>
 <p class="choix-stats"><span data-stats-etat></span>
